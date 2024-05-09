@@ -4,12 +4,11 @@
   "version": "1.0.1",
   "description": "Social Wallet For Dessage.",
   "action": {
-    "default_popup": "html/popup.html",
+    "default_popup": "html/main.html",
     "default_icon": {
       "16": "file/logo_16.png",
       "48": "file/logo_48.png",
-      "128": "file/logo_128.png",
-      "256": "file/logo_256.png"
+      "128": "file/logo_128.png"
     }
   },
   "icons": {
@@ -21,7 +20,7 @@
     "storage"
   ],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "js/background.js"
   },
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"

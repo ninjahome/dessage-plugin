@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Simple Menu</title>
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://ajax.googleapis.com;">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,10 +35,12 @@
     </style>
 </head>
 <body>
-<script src="/js/popup.js"></script>
 <script src="/js/database.js"></script>
-<script src="/js/ethers.umd.min.js"></script>
 <script src="/js/wallet.js"></script>
+<script src="/js/bip39.browser.js"></script>
+<script src="/js/bitcoinjs-lib.js"></script>
+<script src="/js/bip32.min.js"></script>
+<script src="/js/main.js"></script>
 <ul>
     <li>
         <button>Option 1</button>
@@ -49,13 +52,5 @@
         <button>Option 3</button>
     </li>
 </ul>
-<script>
-    document.addEventListener("DOMContentLoaded", initDessagePlugin);
-
-    function initDessagePlugin() {
-        generateNewWallet();
-    }
-
-</script>
 </body>
 </html>

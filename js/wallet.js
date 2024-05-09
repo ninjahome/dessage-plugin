@@ -1,5 +1,7 @@
-function generateNewWallet() {
-    let wallet = ethers.Wallet.createRandom();
-    console.log('Mnemonic:', wallet.mnemonic.phrase);
-    console.log('Private Key:', wallet.privateKey);
+function createPrivateKey() {
+    const mnemonic = bip39.generateMnemonic();
+    console.log(mnemonic);
+
+    const seed = bip39.mnemonicToSeedSync(mnemonic);
+    console.log("Seed:", seed.toString('hex'));
 }
