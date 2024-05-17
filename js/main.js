@@ -3,5 +3,10 @@ document.addEventListener("DOMContentLoaded", initDessagePlugin);
 async function initDessagePlugin() {
     await initDatabase();
 
-    createPrivateKey();
+    const wallets = loadLocalWallet();
+    if (!wallets){
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("html/welcome.html")
+        });
+    }
 }

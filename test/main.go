@@ -14,6 +14,7 @@ func main() {
 	mnemonic := "mother lyrics salute inform isolate language blade coyote illness topple review advance"
 	passphrase := ""
 	seed := bip39.NewSeed(mnemonic, passphrase)
+	fmt.Println(seed)
 
 	// 使用种子生成主扩展私钥
 	masterKey, err := hdkeychain.NewMaster(seed, &chaincfg.MainNetParams)
