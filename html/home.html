@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dessage Onboarding</title>
+    <link rel="stylesheet" href="/file/styles.css">
+</head>
+<body>
+<div class="welcome-container view" id="view-welcome">
+    <header>
+        <img src="/file/logo_128.png" alt="Dessage Logo" class="logo">
+    </header>
+    <main>
+        <h1>Let's get started</h1>
+        <p>Trusted by millions, Dessage is a secure wallet making the world of web3 accessible to all.</p>
+        <div class="welcome-carousel">
+            <!-- Carousel items (for demonstration, static content) -->
+            <div class="carousel-item active">
+                <img src="/file/arch.png" alt="Slide 1">
+            </div>
+            <div class="carousel-item">
+                <img src="/file/router.png" alt="Slide 2">
+            </div>
+        </div>
+        <div class="carousel-indicators">
+            <span class="indicator active"></span>
+            <span class="indicator"></span>
+        </div>
+        <form>
+            <div class="welcome-checkbox">
+                <input type="checkbox" id="welcome-agree">
+                <label for="welcome-agree">I agree to Dessage's <a href="https://github.com/ninjahome/dessage-plugin/blob/main/user_terms.md" target="_blank">Terms of use</a></label>
+            </div>
+            <button type="button" id="welcome-create" class="primary-button" disabled>Create a new wallet</button>
+            <button type="button" id="welcome-import" class="secondary-button">Import an existing wallet</button>
+        </form>
+    </main>
+</div>
+
+<div id="view-create-password" class="create-container view" style="display:none;">
+    <header>
+        <h1>Dessage protocol</h1>
+    </header>
+    <main>
+        <div class="progress-bar">
+            <div class="step active">1</div>
+            <div class="step">2</div>
+            <div class="step">3</div>
+        </div>
+        <h1>Create password</h1>
+        <p>This password will unlock your Dessage wallet only on this device. Dessage cannot recover this password.</p>
+        <form>
+            <label for="new-password">New password (8 characters min)</label>
+            <div class="password-container">
+                <input type="password" id="new-password" required minlength="8">
+                <button type="button" class="show-password">Show</button>
+            </div>
+            <label for="confirm-password">Confirm password</label>
+            <input type="password" id="confirm-password" required>
+            <div class="password-checkbox">
+                <input type="checkbox" id="password-agree">
+                <label for="password-agree">I understand that Dessage cannot recover this password for me. <a href="#">Learn more</a></label>
+            </div>
+            <button type="submit" class="primary-button" disabled>Create a new wallet</button>
+        </form>
+    </main>
+</div>
+<script src="/js/bip39.browser.js"></script>
+<script src="/js/database.js"></script>
+<script src="/js/elliptic.bundle.js"></script>
+<script src="/js/welcome.js"></script>
+</body>
+</html>
