@@ -51,7 +51,7 @@ function initWelcomePage() {
 }
 
 function navigateTo(hash) {
-    window.location.hash = hash;
+    history.pushState(null, null, hash);
     showView(hash);
 }
 
