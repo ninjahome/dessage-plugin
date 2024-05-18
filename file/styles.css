@@ -16,7 +16,6 @@ body {
     max-width: 400px;
     width: 100%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
 }
 
 header {
@@ -136,15 +135,20 @@ p {
     background-color: #007bff;
 }
 
-/* 修改 password-container 和 show-password 样式 */
 .password-container {
     display: flex;
     align-items: center;
-    margin-bottom: 20px; /* 增加上下边距以对齐 */
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-.password-container input {
+.password-container input[type="password"],
+.password-container input[type="text"] {
     flex: 1;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     margin-right: 10px;
 }
 
@@ -152,28 +156,7 @@ p {
     cursor: pointer;
     color: #007bff;
     font-size: 14px;
-    margin-left: 10px; /* 增加左边距使其与输入框保持一定距离 */
-    white-space: nowrap; /* 防止文字换行 */
-}
-
-/* 修改 create-container 样式 */
-.create-container form input[type="password"],
-.create-container form input[type="text"] {
-    width: calc(100% - 70px); /* 确保输入框和按钮在同一行 */
-    padding: 10px;
-    font-size: 14px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-.create-container form input {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    white-space: nowrap;
 }
 
 .create-container {
@@ -241,15 +224,4 @@ p {
     color: #007bff;
     cursor: pointer;
     font-size: 12px;
-}
-
-.create-container form .password-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-.create-container form .password-container input {
-    width: calc(100% - 50px); /* 确保输入框和按钮在同一行 */
-    margin-right: 10px;
 }
