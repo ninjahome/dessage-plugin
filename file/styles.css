@@ -16,7 +16,7 @@ body {
     max-width: 400px;
     width: 100%;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: #fff; /* 确保背景色一致 */
+    background-color: #fff;
 }
 
 header {
@@ -136,6 +136,7 @@ p {
     background-color: #007bff;
 }
 
+/* 修改 password-container 和 show-password 样式 */
 .password-container {
     display: flex;
     align-items: center;
@@ -152,8 +153,10 @@ p {
     color: #007bff;
     font-size: 14px;
     margin-left: 10px; /* 增加左边距使其与输入框保持一定距离 */
+    white-space: nowrap; /* 防止文字换行 */
 }
 
+/* 修改 create-container 样式 */
 .create-container form input[type="password"],
 .create-container form input[type="text"] {
     width: calc(100% - 70px); /* 确保输入框和按钮在同一行 */
@@ -238,4 +241,15 @@ p {
     color: #007bff;
     cursor: pointer;
     font-size: 12px;
+}
+
+.create-container form .password-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.create-container form .password-container input {
+    width: calc(100% - 50px); /* 确保输入框和按钮在同一行 */
+    margin-right: 10px;
 }
