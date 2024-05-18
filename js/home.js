@@ -69,7 +69,7 @@ function showView(hash) {
 }
 
 function createWallet() {
-    navigateTo('#onboarding/recovery-phrase')
+    navigateTo('#onboarding/recovery-phrase');
 }
 
 function importWallet() {

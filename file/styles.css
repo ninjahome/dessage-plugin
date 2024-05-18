@@ -122,7 +122,7 @@ p {
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background-color: #e0e0e0;
+    background-color: #ccc; /* default non-active color */
     margin: 0 5px;
     display: flex;
     align-items: center;
@@ -131,8 +131,13 @@ p {
     font-weight: bold;
 }
 
+
 .step.active {
-    background-color: #007bff;
+    background-color: #8bcaf1;
+}
+
+.step.completed {
+    background-color: #007bff; /* 设置已完成步骤的背景颜色 */
 }
 
 .password-container {
@@ -276,17 +281,18 @@ p {
 .recovery-phrase-container {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    margin-bottom: 20px;
+    justify-content: space-between; /* 调整元素间的间距 */
+    padding: 0 10px; /* 可选：为容器添加内边距，以便更好的间隔 */
 }
 
 .recovery-phrase-item {
-    width: 30%;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
+    width: calc(33.33% - 20px); /* 调整计算公式以适应间隔 */
     padding: 10px;
     margin-bottom: 10px;
+    box-sizing: border-box; /* 将内边距和边框计入宽度计算 */
     text-align: left;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .actions {
