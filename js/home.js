@@ -163,9 +163,6 @@ function confirmUserInputPhrase(){
         alert("input all mnemonic please");
         return;
     }
-    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
-    const wordsArray = mnemonic.split(' ');
-
     let confirmed = true;
     itemToCheck.forEach(div=>{
         if(div.querySelector(".recovery-input").value !== div.dataset.correctWord){
