@@ -51,12 +51,16 @@
         <h1>Create password</h1>
         <p>This password will unlock your Dessage wallet only on this device. Dessage cannot recover this password.</p>
         <form>
-            <label for="new-password">New password (8 characters min)</label>
-            <input type="password" id="new-password" required minlength="8">
-            <span class="show-password">Show</span>
-            <label for="confirm-password">Confirm password</label>
-            <input type="password" id="confirm-password" required>
-            <div class="welcome-checkbox">
+            <div class="password-container">
+                <label for="new-password">New password (8 characters min)</label>
+                <input type="password" id="new-password" required minlength="8">
+                <span class="show-password">Show</span>
+            </div>
+            <div class="password-container">
+                <label for="confirm-password">Confirm password</label>
+                <input type="password" id="confirm-password" required>
+            </div>
+            <div class="password-checkbox">
                 <input type="checkbox" id="password-agree">
                 <label for="password-agree">I understand that Dessage cannot recover this password for me. <a href="#" class="learn-more">Learn more</a></label>
             </div>
