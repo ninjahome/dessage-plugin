@@ -30,7 +30,9 @@
         <form>
             <div class="welcome-checkbox">
                 <input type="checkbox" id="welcome-agree">
-                <label for="welcome-agree">I agree to Dessage's <a href="https://github.com/ninjahome/dessage-plugin/blob/main/user_terms.md" target="_blank">Terms of use</a></label>
+                <label for="welcome-agree">I agree to Dessage's <a
+                            href="https://github.com/ninjahome/dessage-plugin/blob/main/user_terms.md" target="_blank">Terms
+                        of use</a></label>
             </div>
             <button type="button" id="welcome-create" class="primary-button" disabled>Create a new wallet</button>
             <button type="button" id="welcome-import" class="secondary-button">Import an existing wallet</button>
@@ -62,7 +64,9 @@
             </div>
             <div class="password-checkbox">
                 <input type="checkbox" id="password-agree">
-                <label for="password-agree">I understand that Dessage cannot recover this password for me. <a href="#" class="learn-more">Learn more</a></label>
+                <label for="password-agree">I understand that Dessage cannot recover this password for me. <a href="#"
+                                                                                                              class="learn-more">Learn
+                        more</a></label>
             </div>
             <button type="button" class="primary-button" disabled>Create a new wallet</button>
         </form>
@@ -80,7 +84,8 @@
             <div class="step">3</div>
         </div>
         <h1>Write down your Secret Recovery Phrase</h1>
-        <p>Write down this 12-word Secret Recovery Phrase and save it in a place that you trust and only you can access.</p>
+        <p>Write down this 12-word Secret Recovery Phrase and save it in a place that you trust and only you can
+            access.</p>
         <div class="tips">
             <h2>Tips:</h2>
             <ul>
@@ -89,7 +94,8 @@
                 <li>Write down and store in multiple secret places</li>
             </ul>
         </div>
-        <div class="recovery-phrase-item" id="recovery-phrase-item-template" style="display: none"><span  class="phrase-item-index">1</span>. <span class="phrase-item-value"></span></div>
+        <div class="recovery-phrase-item" id="recovery-phrase-item-template" style="display: none"><span
+                    class="phrase-item-index">1</span>. <span class="phrase-item-value"></span></div>
         <div class="recovery-phrase-container">
         </div>
         <div class="actions">
@@ -99,6 +105,31 @@
         <button type="button" class="primary-button">Next</button>
     </main>
 </div>
+
+<div id="view-confirm-recovery" class="recovery-confirm-container view" style="display:none;">
+    <header>
+        <h1>Dessage protocol</h1>
+    </header>
+    <main>
+        <div class="progress-bar">
+            <div class="step completed">1</div>
+            <div class="step completed">2</div>
+            <div class="step active">3</div>
+        </div>
+        <h1>Confirm Secret Recovery Phrase</h1>
+        <p>Confirm Secret Recovery Phrase</p>
+        <form class="recovery-phrase-form">
+            <label id="phrase-item-readOnly" style="display: none">
+                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" disabled  placeholder=""></label>
+            <label id="phrase-item-writeOnly" style="display: none">
+                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" placeholder=""></label>
+            <div class="recovery-phrase-grid">
+            </div>
+            <button type="button" class="primary-button">Confirm</button>
+        </form>
+    </main>
+</div>
+
 
 <script src="/js/bip39.browser.js"></script>
 <script src="/js/database.js"></script>

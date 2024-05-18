@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
-
+const __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
 function initWelcomePage() {
     const agreeCheckbox = document.getElementById('welcome-agree');
     const createButton = document.getElementById('welcome-create');
@@ -33,17 +33,29 @@ function initWelcomePage() {
 
     const showPasswordButtons = document.querySelectorAll('.show-password');
     showPasswordButtons.forEach(button => {
-        button.addEventListener('click',  showPassword);
+        button.addEventListener('click', showPassword);
     });
+
+
+    const nextBtnForConfirm = document.querySelector('#view-recovery-phrase .primary-button');
+    nextBtnForConfirm.addEventListener('click', nextToConfirmPage);
+
+
+    const confirmPhraseBtn = document.querySelector("#view-confirm-recovery .primary-button")
+    confirmPhraseBtn.addEventListener('click', confirmUserInputPhrase);
 
     window.addEventListener('hashchange', function () {
         showView(window.location.hash);
     });
-
-    if (window.location.hash === '#onboarding/recovery-phrase'){
-        const mnemonic = localStorage.getItem('mnemonic');
-        if(mnemonic){
+    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
+    if (window.location.hash === '#onboarding/recovery-phrase') {
+        if (mnemonic) {
             displayMnemonic(mnemonic);
+        }
+    }
+    if (window.location.hash === '#onboarding/recovery-phrase') {
+        if (mnemonic) {
+            displayConfirmVal(mnemonic);
         }
     }
 
@@ -52,7 +64,7 @@ function initWelcomePage() {
     window.navigateTo = navigateTo;
 }
 
-function showPassword(){
+function showPassword() {
     const passwordInput = this.previousElementSibling;
     if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
@@ -81,7 +93,7 @@ function showView(hash) {
 
 function createWallet() {
     const mnemonic = bip39.generateMnemonic();
-    localStorage.setItem('mnemonic', mnemonic); // 保存到本地存储
+    localStorage.setItem(__key_for_mnemonic_temp, mnemonic); // 保存到本地存储
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic(mnemonic);
 }
@@ -102,4 +114,69 @@ function displayMnemonic(mnemonic) {
         div.querySelector(".phrase-item-value").innerText = word;
         mnemonicContainer.appendChild(div);
     });
+}
+
+function nextToConfirmPage() {
+    navigateTo('#onboarding/confirm-recovery');
+    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
+    displayConfirmVal(mnemonic);
+}
+
+function displayConfirmVal(mnemonic) {
+    const wordsArray = mnemonic.split(' ');
+    if (wordsArray.length < 3) {
+        console.log("error for mnemonic=>", mnemonic);
+        return;
+    }
+
+    const indices = new Map();
+    while (indices.size < 3) {
+        const randomIndex = Math.floor(Math.random() * wordsArray.length);
+        if (!indices.get(randomIndex)) {
+            indices.set(randomIndex, true);
+        }
+    }
+
+    const mnemonicContainer = document.querySelector(".recovery-phrase-grid");
+    mnemonicContainer.innerHTML = '';
+    wordsArray.forEach((word, index) => {
+        let div;
+        if (indices.get(index)) {
+            div = document.getElementById("phrase-item-writeOnly").cloneNode(true);
+            div.classList.add('hidden-word');
+            div.dataset.correctWord = wordsArray[index];
+        } else {
+            div = document.getElementById("phrase-item-readOnly").cloneNode(true);
+            div.querySelector(".recovery-input").value = word;
+        }
+        div.id=null;
+        div.style.display = 'block';
+        div.querySelector(".phrase-item-index").innerText = index + 1;
+        mnemonicContainer.appendChild(div);
+    });
+}
+
+function confirmUserInputPhrase(){
+    const mnemonicContainer = document.querySelector(".recovery-phrase-grid");
+    const itemToCheck = mnemonicContainer.querySelectorAll(".hidden-word");
+    if (itemToCheck.length !== 3){
+        alert("input all mnemonic please");
+        return;
+    }
+    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
+    const wordsArray = mnemonic.split(' ');
+
+    let confirmed = true;
+    itemToCheck.forEach(div=>{
+        if(div.querySelector(".recovery-input").value !== div.dataset.correctWord){
+            confirmed = false;
+            div.classList.add("error-word");
+        }
+    })
+
+    if(!confirmed){
+        return;
+    }
+
+    localStorage.removeItem(__key_for_mnemonic_temp);
 }
