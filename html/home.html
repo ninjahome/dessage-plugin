@@ -69,10 +69,51 @@
     </main>
 </div>
 
+<div id="view-recovery-phrase" class="recovery-container view" style="display:none;">
+    <header>
+        <h1>Dessage protocol</h1>
+    </header>
+    <main>
+        <div class="progress-bar">
+            <div class="step">1</div>
+            <div class="step active">2</div> <!-- 将此步骤设置为活动状态 -->
+            <div class="step">3</div>
+        </div>
+        <h1>Write down your Secret Recovery Phrase</h1>
+        <p>Write down this 12-word Secret Recovery Phrase and save it in a place that you trust and only you can access.</p>
+        <div class="tips">
+            <h2>Tips:</h2>
+            <ul>
+                <li>Save in a password manager</li>
+                <li>Store in a safe deposit box</li>
+                <li>Write down and store in multiple secret places</li>
+            </ul>
+        </div>
+        <div class="recovery-phrase-container">
+            <div class="recovery-phrase-item">1. <span>mother</span></div>
+            <div class="recovery-phrase-item">2. <span>wolf</span></div>
+            <div class="recovery-phrase-item">3. <span>quality</span></div>
+            <div class="recovery-phrase-item">4. <span>require</span></div>
+            <div class="recovery-phrase-item">5. <span>west</span></div>
+            <div class="recovery-phrase-item">6. <span>cinnamon</span></div>
+            <div class="recovery-phrase-item">7. <span>crew</span></div>
+            <div class="recovery-phrase-item">8. <span>dust</span></div>
+            <div class="recovery-phrase-item">9. <span>cactus</span></div>
+            <div class="recovery-phrase-item">10. <span>trip</span></div>
+            <div class="recovery-phrase-item">11. <span>draft</span></div>
+            <div class="recovery-phrase-item">12. <span>crew</span></div>
+        </div>
+        <div class="actions">
+            <button type="button" class="secondary-button">Hide seed phrase</button>
+            <button type="button" class="secondary-button">Copy to clipboard</button>
+        </div>
+        <button type="button" class="primary-button">Next</button>
+    </main>
+</div>
 
 <script src="/js/bip39.browser.js"></script>
 <script src="/js/database.js"></script>
 <script src="/js/elliptic.bundle.js"></script>
-<script src="/js/welcome.js"></script>
+<script src="/js/home.js"></script>
 </body>
 </html>

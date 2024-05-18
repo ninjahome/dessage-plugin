@@ -225,3 +225,103 @@ p {
     cursor: pointer;
     font-size: 12px;
 }
+
+.recovery-container {
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+}
+
+.recovery-container header {
+    margin-bottom: 20px;
+}
+
+.recovery-container main {
+    text-align: center;
+}
+
+.recovery-container h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.recovery-container p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.recovery-container .tips {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.recovery-container .tips h2 {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.recovery-container .tips ul {
+    list-style-type: disc;
+    padding-left: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+.recovery-phrase-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.recovery-phrase-item {
+    width: 30%;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.actions .secondary-button {
+    margin-right: 10px;
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.primary-button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    margin-top: 20px;
+}
+
+.primary-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+/* 新增样式 */
+.recovery-phrase-container div {
+    width: calc(33.33% - 10px); /* 三列布局 */
+}

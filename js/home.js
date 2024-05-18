@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", initWelcomePage);
 function initWelcomePage() {
     const agreeCheckbox = document.getElementById('welcome-agree');
     const createButton = document.getElementById('welcome-create');
-    createButton.addEventListener('click', createNewWallet);
+    createButton.addEventListener('click', ()=>{navigateTo('#onboarding/create-password');});
 
     // 初始状态
     createButton.disabled = !agreeCheckbox.checked;
@@ -26,6 +26,8 @@ function initWelcomePage() {
     passwordAgreeCheckbox.addEventListener('change', function () {
         createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
     });
+    createPasswordButton.addEventListener('click', createWallet);
+
 
     const showPasswordButtons = document.querySelectorAll('.show-password');
     showPasswordButtons.forEach(button => {
@@ -66,8 +68,8 @@ function showView(hash) {
     }
 }
 
-function createNewWallet() {
-    navigateTo('#onboarding/create-password');
+function createWallet() {
+    navigateTo('#onboarding/recovery-phrase')
 }
 
 function importWallet() {
