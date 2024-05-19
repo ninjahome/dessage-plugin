@@ -55,4 +55,7 @@ func main() {
 	ecdsaPrivateKey := btcPrivateKey.ToECDSA()
 	fmt.Println("Ethereum Private Key:", crypto.FromECDSA(ecdsaPrivateKey))
 	fmt.Println("Ethereum Address:", ethAddress.Hex())
+
+	//curve := btcec.S256()
+	//privKey, pubKey := btcec.PrivKeyFromBytes(curve, secretKey)
 }

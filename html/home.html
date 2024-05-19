@@ -64,8 +64,9 @@
             </div>
             <div class="password-checkbox">
                 <input type="checkbox" id="password-agree">
-                <label for="password-agree">I understand that Dessage cannot recover this password for me. <a href="#"
-                                                                                                              class="learn-more">Learn
+                <label for="password-agree">I understand that Dessage cannot recover this password for me. <a
+                            href="https://github.com/ninjahome/dessage-plugin/blob/main/user_terms.md"
+                            class="learn-more">Learn
                         more</a></label>
             </div>
             <button type="button" class="primary-button" disabled>Create a new wallet</button>
@@ -120,9 +121,11 @@
         <p>Confirm Secret Recovery Phrase</p>
         <form class="recovery-phrase-form">
             <label id="phrase-item-readOnly" style="display: none">
-                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" disabled  placeholder=""></label>
+                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" disabled
+                                                                placeholder=""></label>
             <label id="phrase-item-writeOnly" style="display: none">
-                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" placeholder=""></label>
+                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input"
+                                                                placeholder=""></label>
             <div class="recovery-phrase-grid">
             </div>
             <button type="button" class="primary-button">Confirm</button>
@@ -130,10 +133,15 @@
     </main>
 </div>
 
+<div id="view-account-home" class="account-home view" style="display:none;">
+</div>
 
 <script src="/js/bip39.browser.js"></script>
+<script src="/js/wallet.js"></script>
 <script src="/js/database.js"></script>
 <script src="/js/elliptic.bundle.js"></script>
 <script src="/js/home.js"></script>
+{{/*<script src="/js/web3.min.js"></script>*/}}
+<script src="/js/ethereumjs-util.bundle.js"></script>
 </body>
 </html>

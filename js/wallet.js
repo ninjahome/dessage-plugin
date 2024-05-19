@@ -1,8 +1,4 @@
-function createPrivateKey() {
-
-    const mnemonic = bip39.generateMnemonic();
-    console.log(mnemonic);
-    const password = "123";
+function createPrivateKey(mnemonic, password) {
 
     const seed = bip39.mnemonicToSeedSync(mnemonic, password);
     console.log("Seed:", seed.toString('hex'));
@@ -24,4 +20,35 @@ function createPrivateKey() {
 
 function loadLocalWallet() {
     return null;
+}
+
+function createEthPriKey(secretKey, strict) {
+    const EC = elliptic; // 确保 elliptic 正确引用
+    const curve = new EC('secp256k1');
+    const key = curve.keyFromPrivate(secretKey);
+
+    // const privKey = keyPair.getPrivate('hex');
+    // const pubKey = keyPair.getPublic('hex');
+    //
+    // console.log("Private Key:", privKey);
+    // console.log("Public Key:", pubKey);
+
+    if (strict && 8 * d.length !== curve.n.bitLength()) {
+        throw new Error(`Invalid length, need ${curve.n.bitLength()} bits`);
+    }
+
+    // The privateKey.D must < N
+    if (key.getPrivate().gte(curve.n)) {
+        throw new Error('Invalid private key, >=N');
+    }
+
+    // The privateKey.D must not be zero or negative.
+    if (key.getPrivate() <= 0n) {
+        throw new Error('Invalid private key, zero or negative');
+    }
+    key.getPublic();
+    if (!key.pub) {
+        throw new Error('Invalid private key');
+    }
+    return key;
 }

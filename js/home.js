@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 const __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
+
 function initWelcomePage() {
     const agreeCheckbox = document.getElementById('welcome-agree');
     const createButton = document.getElementById('welcome-create');
@@ -92,11 +93,29 @@ function showView(hash) {
 }
 
 function createWallet() {
+    const password1 = document.getElementById("new-password").value;
+    const password2 = document.getElementById("confirm-password").value;
+    if (password1 !== password2) {
+        alert("passwords are not same");
+        return;
+    }
     const mnemonic = bip39.generateMnemonic();
     localStorage.setItem(__key_for_mnemonic_temp, mnemonic); // 保存到本地存储
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic(mnemonic);
+
+    const seed = bip39.mnemonicToSeedSync(mnemonic, password1);
+    const secretKey = seed.slice(0, 32);
+    console.log("Secret Key:", secretKey.toString('hex'));
+
+    const ethPriKey = createEthPriKey(secretKey, false);
+    const publicKey = ethPriKey.getPublic('hex', false);
+
+    const hashedPublicKey = EthereumJSUtil.keccak256(publicKey);
+    const ethPubKey = '0x' + hashedPublicKey.slice(-40);
+    console.log("Public Key:", ethPubKey);
 }
+
 
 function importWallet() {
     // 导入钱包的逻辑
@@ -149,31 +168,32 @@ function displayConfirmVal(mnemonic) {
             div = document.getElementById("phrase-item-readOnly").cloneNode(true);
             div.querySelector(".recovery-input").value = word;
         }
-        div.id=null;
+        div.id = null;
         div.style.display = 'block';
         div.querySelector(".phrase-item-index").innerText = index + 1;
         mnemonicContainer.appendChild(div);
     });
 }
 
-function confirmUserInputPhrase(){
+function confirmUserInputPhrase() {
     const mnemonicContainer = document.querySelector(".recovery-phrase-grid");
     const itemToCheck = mnemonicContainer.querySelectorAll(".hidden-word");
-    if (itemToCheck.length !== 3){
+    if (itemToCheck.length !== 3) {
         alert("input all mnemonic please");
         return;
     }
     let confirmed = true;
-    itemToCheck.forEach(div=>{
-        if(div.querySelector(".recovery-input").value !== div.dataset.correctWord){
+    itemToCheck.forEach(div => {
+        if (div.querySelector(".recovery-input").value !== div.dataset.correctWord) {
             confirmed = false;
             div.classList.add("error-word");
         }
     })
 
-    if(!confirmed){
+    if (!confirmed) {
         return;
     }
 
     localStorage.removeItem(__key_for_mnemonic_temp);
+    navigateTo('#onboarding/account-home');
 }
