@@ -41,6 +41,15 @@ async function initWelcomePage() {
     const confirmPhraseBtn = document.querySelector("#view-confirm-recovery .primary-button")
     confirmPhraseBtn.addEventListener('click', confirmUserInputPhrase);
 
+
+    const recoveryPhraseLength = document.getElementById('recovery-phrase-length');
+    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs');
+    recoveryPhraseLength.addEventListener('change', generateRecoveryPhraseInputs);
+
+    const confirmRecoverBtn = document.querySelector('#view-import-wallet .primary-button');
+    confirmRecoverBtn.addEventListener('click', confirmRecoverWallet);
+
+
     window.addEventListener('hashchange', function () {
         showView(window.location.hash);
     });
@@ -49,6 +58,9 @@ async function initWelcomePage() {
     }
     if (window.location.hash === '#onboarding/recovery-phrase') {
         displayConfirmVal();
+    }
+    if (window.location.hash === '#onboarding/import-wallet') {
+        generateRecoveryPhraseInputs();
     }
 
     showView(window.location.hash || '#onboarding/welcome');
@@ -107,7 +119,8 @@ async function createWallet() {
 
 
 function importWallet() {
-    // 导入钱包的逻辑
+    navigateTo('#onboarding/import-wallet');
+    generateRecoveryPhraseInputs();
 }
 
 function displayMnemonic() {
@@ -189,3 +202,43 @@ function confirmUserInputPhrase() {
     navigateTo('#onboarding/account-home');
 }
 
+
+function generateRecoveryPhraseInputs() {
+    const length = document.getElementById('recovery-phrase-length').value;
+    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs');
+    recoveryPhraseInputs.innerHTML = '';
+
+    for (let i = 0; i < length; i++) {
+        if (i % 3 === 0) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'recovery-phrase-row';
+            recoveryPhraseInputs.appendChild(rowDiv);
+        }
+
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'recovery-phrase-input';
+
+        const input = document.createElement('input');
+        input.type = 'password';
+        input.className = 'recovery-phrase';
+        input.id = `recovery-phrase-${i + 1}`;
+
+        const toggleButton = document.createElement('button');
+        toggleButton.type = 'button';
+        toggleButton.className = 'toggle-visibility';
+        toggleButton.innerText = '🙈';
+        toggleButton.addEventListener('click', () => {
+            input.type = input.type === 'password' ? 'text' : 'password';
+            toggleButton.innerText = input.type === 'password' ? '🙈' : '👁';
+        });
+
+        inputDiv.appendChild(input);
+        inputDiv.appendChild(toggleButton);
+
+        recoveryPhraseInputs.lastChild.appendChild(inputDiv);
+    }
+}
+
+function confirmRecoverWallet() {
+
+}
