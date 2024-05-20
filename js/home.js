@@ -1,17 +1,16 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
-const __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
+let __key_for_mnemonic_temp = null;
 
-function initWelcomePage() {
+async function initWelcomePage() {
+    await initDatabase();
+
     const agreeCheckbox = document.getElementById('welcome-agree');
     const createButton = document.getElementById('welcome-create');
     createButton.addEventListener('click', () => {
         navigateTo('#onboarding/create-password');
     });
 
-    // 初始状态
     createButton.disabled = !agreeCheckbox.checked;
-
-    // 当复选框状态改变时更新按钮状态
     agreeCheckbox.addEventListener('change', function () {
         createButton.disabled = !agreeCheckbox.checked;
     });
@@ -22,10 +21,7 @@ function initWelcomePage() {
     const passwordAgreeCheckbox = document.getElementById('password-agree');
     const createPasswordButton = document.querySelector('#view-create-password .primary-button');
 
-    // 初始状态
     createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
-
-    // 当复选框状态改变时更新按钮状态
     passwordAgreeCheckbox.addEventListener('change', function () {
         createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
     });
@@ -48,16 +44,11 @@ function initWelcomePage() {
     window.addEventListener('hashchange', function () {
         showView(window.location.hash);
     });
-    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
     if (window.location.hash === '#onboarding/recovery-phrase') {
-        if (mnemonic) {
-            displayMnemonic(mnemonic);
-        }
+        displayMnemonic();
     }
     if (window.location.hash === '#onboarding/recovery-phrase') {
-        if (mnemonic) {
-            displayConfirmVal(mnemonic);
-        }
+        displayConfirmVal();
     }
 
     showView(window.location.hash || '#onboarding/welcome');
@@ -92,28 +83,26 @@ function showView(hash) {
     }
 }
 
-function createWallet() {
+async function createWallet() {
     const password1 = document.getElementById("new-password").value;
     const password2 = document.getElementById("confirm-password").value;
     if (password1 !== password2) {
         alert("passwords are not same");
         return;
     }
+
+    if (password1.length === 0) {
+        alert("password invalid");
+        return;
+    }
+
     const mnemonic = bip39.generateMnemonic();
-    localStorage.setItem(__key_for_mnemonic_temp, mnemonic); // 保存到本地存储
+    __key_for_mnemonic_temp = mnemonic;
     navigateTo('#onboarding/recovery-phrase');
-    displayMnemonic(mnemonic);
+    displayMnemonic();
 
-    const seed = bip39.mnemonicToSeedSync(mnemonic, password1);
-    const secretKey = seed.slice(0, 32);
-    console.log("Secret Key:", secretKey.toString('hex'));
-
-    const ethPriKey = createEthPriKey(secretKey, false);
-    const publicKey = ethPriKey.getPublic('hex', false);
-
-    const hashedPublicKey = EthereumJSUtil.keccak256(publicKey);
-    const ethPubKey = '0x' + hashedPublicKey.slice(-40);
-    console.log("Public Key:", ethPubKey);
+    const wallet = NewWallet(mnemonic, password1);
+    await wallet.syncToDb();
 }
 
 
@@ -121,8 +110,12 @@ function importWallet() {
     // 导入钱包的逻辑
 }
 
-function displayMnemonic(mnemonic) {
-    const wordsArray = mnemonic.split(' ');
+function displayMnemonic() {
+    if (!__key_for_mnemonic_temp) {
+        console.log("invalid mnemonic");
+        return;
+    }
+    const wordsArray = __key_for_mnemonic_temp.split(' ');
     const mnemonicContainer = document.querySelector(".recovery-phrase-container");
     mnemonicContainer.innerHTML = ''; // 清空以前的内容
 
@@ -137,17 +130,16 @@ function displayMnemonic(mnemonic) {
 
 function nextToConfirmPage() {
     navigateTo('#onboarding/confirm-recovery');
-    const mnemonic = localStorage.getItem(__key_for_mnemonic_temp);
-    displayConfirmVal(mnemonic);
+    displayConfirmVal();
 }
 
-function displayConfirmVal(mnemonic) {
-    const wordsArray = mnemonic.split(' ');
-    if (wordsArray.length < 3) {
-        console.log("error for mnemonic=>", mnemonic);
+function displayConfirmVal() {
+    if (!__key_for_mnemonic_temp) {
+        console.log("error for mnemonic=>", __key_for_mnemonic_temp);
         return;
     }
 
+    const wordsArray = __key_for_mnemonic_temp.split(' ');
     const indices = new Map();
     while (indices.size < 3) {
         const randomIndex = Math.floor(Math.random() * wordsArray.length);
@@ -193,7 +185,7 @@ function confirmUserInputPhrase() {
     if (!confirmed) {
         return;
     }
-
-    localStorage.removeItem(__key_for_mnemonic_temp);
+    __key_for_mnemonic_temp = null;
     navigateTo('#onboarding/account-home');
 }
+

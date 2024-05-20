@@ -1,5 +1,5 @@
 let __databaseObj;
-const __currentDatabaseVersion = 1;
+const __currentDatabaseVersion = 2;
 const __tableNameWallet = '__table_wallet__';
 
 function initDatabase() {
@@ -22,6 +22,7 @@ function initDatabase() {
             if (!db.objectStoreNames.contains(__tableNameWallet)) {
                 const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'address'});
                 objectStore.createIndex('addressIdx', 'address', {unique: true});
+                objectStore.createIndex('uuidIdx', 'uuid', {unique: true});
                 console.log("Created cached item table successfully.");
             }
         };
