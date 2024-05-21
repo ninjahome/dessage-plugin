@@ -62,6 +62,7 @@
                 <label for="confirm-password">Confirm password</label>
                 <input type="password" id="confirm-password" required>
             </div>
+            <div class="error-message" style="display:none;"> </div>
             <div class="password-checkbox">
                 <input type="checkbox" id="password-agree">
                 <label for="password-agree">I understand that Dessage cannot recover this password for me. <a
@@ -196,15 +197,17 @@
             <div class="password-container">
                 <label for="imported-new-password">New password <br>(8 characters min)</label>
                 <input type="password" id="imported-new-password" required minlength="8">
-                <span class="show-password" >Show</span>
+                <span class="show-password">Show</span>
             </div>
             <div class="password-container">
                 <label for="imported-confirm-password">Confirm password</label>
                 <input type="password" id="imported-confirm-password" required>
             </div>
+            <div class="error-message" style="display:none;"> </div>
             <div class="password-checkbox">
                 <input type="checkbox" id="imported-password-agree">
-                <label for="imported-password-agree">I understand that Dessage cannot recover this password for me. <a href="#" class="learn-more">Learn more</a></label>
+                <label for="imported-password-agree">I understand that Dessage cannot recover this password for me. <a
+                            href="#" class="learn-more">Learn more</a></label>
             </div>
             <button type="button" class="primary-button" disabled>Import my wallet</button>
         </form>

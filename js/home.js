@@ -9,9 +9,7 @@ function initWelcomeDiv() {
     });
 
     createButton.disabled = !agreeCheckbox.checked;
-    agreeCheckbox.addEventListener('change', function () {
-        createButton.disabled = !agreeCheckbox.checked;
-    });
+    agreeCheckbox.addEventListener('change', checkImportPassword);
 
     const importButton = document.getElementById('welcome-import');
     importButton.addEventListener('click', importWallet);
@@ -52,13 +50,11 @@ function initImportFromWallet() {
 }
 
 function initImportPasswordDiv() {
-    document.getElementById('imported-password-agree').addEventListener('change', function () {
-        const importButton = document.querySelector('#view-password-for-imported .primary-button');
-        importButton.disabled = !this.checked;
-    });
-
     const importBtn = document.querySelector("#view-password-for-imported .primary-button");
     importBtn.addEventListener('click', actionOfWalletImport)
+    document.getElementById('imported-password-agree').addEventListener('change', checkImportPassword);
+    document.getElementById("imported-new-password").addEventListener('input', checkImportPassword)
+    document.getElementById("imported-confirm-password").addEventListener('input', checkImportPassword)
 }
 
 function router(path) {
@@ -70,6 +66,9 @@ function router(path) {
     }
     if (path === '#onboarding/import-wallet') {
         generateRecoveryPhraseInputs();
+    }
+    if (path === '#onboarding/account-home') {
+        prepareAccountData();
     }
 }
 
@@ -225,7 +224,7 @@ function generateRecoveryPhraseInputs() {
     for (let i = 0; i < length; i += 3) {
         const rowDiv = template.cloneNode(true);
         rowDiv.style.display = 'grid';
-        rowDiv.id = ''; // 清除 id 属性
+        rowDiv.id = '';
         recoveryPhraseInputs.appendChild(rowDiv);
         rowDiv.querySelectorAll("input").forEach(input => {
             input.addEventListener('input', validateRecoveryPhrase);
@@ -361,7 +360,48 @@ function showPassword() {
     }
 }
 
-function actionOfWalletImport() {
+async function actionOfWalletImport() {
+    const password = document.getElementById("imported-new-password").value;
+    const wallet = NewWallet(__key_for_mnemonic_temp, password);
+    await wallet.syncToDb();
     __key_for_mnemonic_temp = null;
     navigateTo('#onboarding/account-home');
+}
+
+function checkImportPassword() {
+    const form = this.closest('form');
+    const okBtn = form.querySelector(".primary-button");
+    let pwd = [];
+    form.querySelectorAll("input").forEach(input => {
+        if (input.type === 'password' || input.type === 'text') {
+            pwd.push(input.value);
+        }
+    })
+
+    const errMsg = form.querySelector(".error-message");
+
+    if (pwd[0].length < 8 && pwd[0].length > 0) {
+        errMsg.innerText = "password must be longer than 8 characters";
+        errMsg.style.display = 'block';
+        okBtn.disabled = true;
+        return;
+    }
+
+    if (pwd[0] !== pwd[1]) {
+        errMsg.innerText = "passwords are not same";
+        errMsg.style.display = 'block';
+        okBtn.disabled = true;
+        return;
+    }
+
+    errMsg.innerText = '';
+    errMsg.style.display = 'none';
+    const checkbox = form.querySelector('input[type="checkbox"]');
+    okBtn.disabled = !(checkbox.checked && pwd[0].length >= 8);
+}
+
+function prepareAccountData() {
+    loadLocalWallet().then(ws => {
+        console.log("all wallets:=>", ws);
+    });
 }
