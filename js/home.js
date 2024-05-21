@@ -51,6 +51,16 @@ function initImportFromWallet() {
     confirmRecoverBtn.addEventListener('click', confirmImportedWallet);
 }
 
+function initImportPasswordDiv() {
+    document.getElementById('imported-password-agree').addEventListener('change', function () {
+        const importButton = document.querySelector('#view-password-for-imported .primary-button');
+        importButton.disabled = !this.checked;
+    });
+
+    const importBtn = document.querySelector("#view-password-for-imported .primary-button");
+    importBtn.addEventListener('click', actionOfWalletImport)
+}
+
 function router(path) {
     if (path === '#onboarding/recovery-phrase') {
         displayMnemonic();
@@ -70,6 +80,7 @@ async function initWelcomePage() {
     initMnemonicDiv();
     initMnemonicConfirmDiv();
     initImportFromWallet();
+    initImportPasswordDiv();
 
     window.addEventListener('hashchange', function () {
         showView(window.location.hash);
@@ -78,17 +89,6 @@ async function initWelcomePage() {
     showView(window.location.hash || '#onboarding/welcome');
 
     window.navigateTo = navigateTo;
-}
-
-function showPassword() {
-    const passwordInput = this.previousElementSibling;
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        this.textContent = 'Hide';
-    } else {
-        passwordInput.type = 'password';
-        this.textContent = 'Show';
-    }
 }
 
 function navigateTo(hash) {
@@ -227,9 +227,9 @@ function generateRecoveryPhraseInputs() {
         rowDiv.style.display = 'grid';
         rowDiv.id = ''; // 清除 id 属性
         recoveryPhraseInputs.appendChild(rowDiv);
-        rowDiv.querySelectorAll("input").forEach(input=>{
+        rowDiv.querySelectorAll("input").forEach(input => {
             input.addEventListener('input', validateRecoveryPhrase);
-            input.nextElementSibling.addEventListener('click',changeInputType);
+            input.nextElementSibling.addEventListener('click', changeInputType);
         })
     }
 }
@@ -246,9 +246,8 @@ function changeInputType() {
 }
 
 
-function confirmImportedWallet() {
-}
 const wordlist = bip39.wordlists.english;
+
 function validateRecoveryPhrase() {
     const wordsArray = this.value.split(' ');
     let errMsg = '';
@@ -269,7 +268,7 @@ function validateRecoveryPhrase() {
                 return;
             }
 
-            const wordIsOk =  wordlist.includes(input.value) ;
+            const wordIsOk = wordlist.includes(input.value);
             if (!wordIsOk) {
                 everyWordIsOk = false;
             }
@@ -285,7 +284,7 @@ function validateRecoveryPhrase() {
             setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words");
             return;
         }
-        setRecoverPhaseTips(true,"");
+        setRecoverPhaseTips(true, "");
         return;
     }
 
@@ -308,12 +307,12 @@ function validateRecoveryPhrase() {
     }
     const str = wordsArray.join(' ');
     const valid = bip39.validateMnemonic(str);
-    if (!valid){
+    if (!valid) {
         setRecoverPhaseTips(false, "Invalid Mnemonic String");
         return
     }
 
-    setRecoverPhaseTips(true,"");
+    setRecoverPhaseTips(true, "");
 }
 
 function setRecoverPhaseTips(isValid, errMsg) {
@@ -326,4 +325,43 @@ function setRecoverPhaseTips(isValid, errMsg) {
         document.querySelector("#view-import-wallet .primary-button").disabled = true;
     }
     errorMessage.innerText = errMsg;
+}
+
+
+function confirmImportedWallet() {
+    const inputs = document.querySelectorAll("#recovery-phrase-inputs .recovery-phrase")
+    const inputValues = [];
+    inputs.forEach(input => {
+        inputValues.push(input.value);
+    })
+    const mnemonic = inputValues.join(' ');
+    const valid = bip39.validateMnemonic(mnemonic);
+    if (!valid) {
+        alert("invalid mnemonic data")
+        return;
+    }
+
+    __key_for_mnemonic_temp = mnemonic;
+    navigateTo('#onboarding/password-for-imported');
+}
+
+function showPassword() {
+    const form = this.closest('form');
+    form.querySelectorAll("input").forEach(input => {
+        if (input.type === 'password') {
+            input.type = 'text';
+        } else if (input.type === 'text') {
+            input.type = 'password';
+        }
+    });
+    if (this.textContent === 'Show') {
+        this.textContent = 'Hide';
+    } else {
+        this.textContent = 'Show';
+    }
+}
+
+function actionOfWalletImport() {
+    __key_for_mnemonic_temp = null;
+    navigateTo('#onboarding/account-home');
 }
