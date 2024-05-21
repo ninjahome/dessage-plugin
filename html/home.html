@@ -62,7 +62,7 @@
                 <label for="confirm-password">Confirm password</label>
                 <input type="password" id="confirm-password" required>
             </div>
-            <div class="error-message" style="display:none;"> </div>
+            <div class="error-message" style="display:none;"></div>
             <div class="password-checkbox">
                 <input type="checkbox" id="password-agree">
                 <label for="password-agree">I understand that Dessage cannot recover this password for me. <a
@@ -98,11 +98,13 @@
         </div>
         <div class="recovery-phrase-item" id="recovery-phrase-item-template" style="display: none"><span
                     class="phrase-item-index">1</span>. <span class="phrase-item-value"></span></div>
-        <div class="recovery-phrase-container">
+        <div class="recovery-phrase-container hidden-seed-phrase" data-visibile="false">
         </div>
         <div class="actions">
-            <button type="button" class="secondary-button">Hide seed phrase</button>
-            <button type="button" class="secondary-button">Copy to clipboard</button>
+            <button type="button" class="secondary-button" id="view-recovery-phrase-hide-seed">Reveal seed phrase
+            </button>
+            <button type="button" class="secondary-button" id="view-recovery-phrase-copy-seed">Copy to clipboard
+            </button>
         </div>
         <button type="button" class="primary-button">Next</button>
     </main>
@@ -122,14 +124,16 @@
         <p>Confirm Secret Recovery Phrase</p>
         <form class="recovery-phrase-form">
             <label id="phrase-item-readOnly" style="display: none">
-                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input" disabled
-                                                                placeholder=""></label>
+                <span class="phrase-item-index"></span>.
+                <input type="text" class="recovery-input" disabled>
+            </label>
             <label id="phrase-item-writeOnly" style="display: none">
-                <span class="phrase-item-index"></span>. <input type="text" class="recovery-input"
-                                                                placeholder=""></label>
+                <span class="phrase-item-index"></span>.
+                <input type="text" class="recovery-input">
+            </label>
             <div class="recovery-phrase-grid">
             </div>
-            <button type="button" class="primary-button">Confirm</button>
+            <button type="button" class="primary-button" disabled>Confirm</button>
         </form>
     </main>
 </div>
@@ -203,7 +207,7 @@
                 <label for="imported-confirm-password">Confirm password</label>
                 <input type="password" id="imported-confirm-password" required>
             </div>
-            <div class="error-message" style="display:none;"> </div>
+            <div class="error-message" style="display:none;"></div>
             <div class="password-checkbox">
                 <input type="checkbox" id="imported-password-agree">
                 <label for="imported-password-agree">I understand that Dessage cannot recover this password for me. <a

@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
-let __key_for_mnemonic_temp = null;
+let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
 
 function initWelcomeDiv() {
     const agreeCheckbox = document.getElementById('welcome-agree');
@@ -9,7 +9,7 @@ function initWelcomeDiv() {
     });
 
     createButton.disabled = !agreeCheckbox.checked;
-    agreeCheckbox.addEventListener('change', ()=>{
+    agreeCheckbox.addEventListener('change', () => {
         createButton.disabled = !agreeCheckbox.checked;
     });
 
@@ -24,9 +24,9 @@ function initPasswordDiv() {
     createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
     createPasswordButton.addEventListener('click', createWallet);
 
-    passwordAgreeCheckbox.addEventListener('change',  checkImportPassword);
-    document.getElementById("new-password").addEventListener('input',checkImportPassword);
-    document.getElementById("confirm-password").addEventListener('input',checkImportPassword);
+    passwordAgreeCheckbox.addEventListener('change', checkImportPassword);
+    document.getElementById("new-password").addEventListener('input', checkImportPassword);
+    document.getElementById("confirm-password").addEventListener('input', checkImportPassword);
 
     const showPasswordButtons = document.querySelectorAll('.show-password');
     showPasswordButtons.forEach(button => {
@@ -37,6 +37,15 @@ function initPasswordDiv() {
 function initMnemonicDiv() {
     const nextBtnForConfirm = document.querySelector('#view-recovery-phrase .primary-button');
     nextBtnForConfirm.addEventListener('click', nextToConfirmPage);
+    document.getElementById("view-recovery-phrase-hide-seed").addEventListener('click', hideSeedDiv)
+    document.getElementById("view-recovery-phrase-copy-seed").addEventListener('click', () => {
+        if (!__key_for_mnemonic_temp) {
+            return;
+        }
+        navigator.clipboard.writeText(__key_for_mnemonic_temp).then(r => {
+            alert("copy success");
+        })
+    })
 }
 
 function initMnemonicConfirmDiv() {
@@ -132,7 +141,6 @@ async function createWallet() {
     await wallet.syncToDb();
 }
 
-
 function importWallet() {
     navigateTo('#onboarding/import-wallet');
     generateRecoveryPhraseInputs();
@@ -154,6 +162,19 @@ function displayMnemonic() {
         div.querySelector(".phrase-item-value").innerText = word;
         mnemonicContainer.appendChild(div);
     });
+}
+
+function hideSeedDiv() {
+    const recoveryPhraseContainer = document.querySelector('.recovery-phrase-container');
+    let seedPhraseVisible = recoveryPhraseContainer.dataset.visible === 'true';
+    if (seedPhraseVisible) {
+        recoveryPhraseContainer.classList.add('hidden-seed-phrase');
+        this.textContent = 'Reveal seed phrase';
+    } else {
+        recoveryPhraseContainer.classList.remove('hidden-seed-phrase');
+        this.textContent = 'Hide seed phrase';
+    }
+    recoveryPhraseContainer.dataset.visible = '' + !seedPhraseVisible;
 }
 
 function nextToConfirmPage() {
@@ -188,7 +209,7 @@ function displayConfirmVal() {
             div = document.getElementById("phrase-item-readOnly").cloneNode(true);
             div.querySelector(".recovery-input").value = word;
         }
-        div.id = null;
+        div.id = '';
         div.style.display = 'block';
         div.querySelector(".phrase-item-index").innerText = index + 1;
         mnemonicContainer.appendChild(div);
