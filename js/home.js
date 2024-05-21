@@ -9,7 +9,9 @@ function initWelcomeDiv() {
     });
 
     createButton.disabled = !agreeCheckbox.checked;
-    agreeCheckbox.addEventListener('change', checkImportPassword);
+    agreeCheckbox.addEventListener('change', ()=>{
+        createButton.disabled = !agreeCheckbox.checked;
+    });
 
     const importButton = document.getElementById('welcome-import');
     importButton.addEventListener('click', importWallet);
@@ -20,10 +22,11 @@ function initPasswordDiv() {
     const createPasswordButton = document.querySelector('#view-create-password .primary-button');
 
     createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
-    passwordAgreeCheckbox.addEventListener('change', function () {
-        createPasswordButton.disabled = !passwordAgreeCheckbox.checked;
-    });
     createPasswordButton.addEventListener('click', createWallet);
+
+    passwordAgreeCheckbox.addEventListener('change',  checkImportPassword);
+    document.getElementById("new-password").addEventListener('input',checkImportPassword);
+    document.getElementById("confirm-password").addEventListener('input',checkImportPassword);
 
     const showPasswordButtons = document.querySelectorAll('.show-password');
     showPasswordButtons.forEach(button => {
