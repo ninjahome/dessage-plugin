@@ -143,7 +143,9 @@
             <div class="step">2</div>
         </div>
         <h1>Access your wallet with your Secret Recovery Phrase</h1>
-        <p>Dessage cannot recover your password. We will use your Secret Recovery Phrase to validate your ownership, restore your wallet and set up a new password. First, enter the Secret Recovery Phrase that you were given when you created your wallet. <a href="#" class="learn-more">Learn more</a></p>
+        <p>Dessage cannot recover your password. We will use your Secret Recovery Phrase to validate your ownership,
+            restore your wallet and set up a new password. First, enter the Secret Recovery Phrase that you were given
+            when you created your wallet. <a href="#" class="learn-more">Learn more</a></p>
 
         <div class="form-group">
             <label for="recovery-phrase-length">Type your Secret Recovery Phrase</label>
@@ -159,16 +161,16 @@
         <p class="import-container-tip">You can paste your entire secret recovery phrase into any field</p>
         <div class="recovery-phrase-row" id="recovery-phrase-row-template" style="display: none;">
             <div class="recovery-phrase-input">
-                <input type="password" class="recovery-phrase" oninput="validateRecoveryPhrase.call(this)"/>
-                <button type="button" class="toggle-visibility" onclick="changeInputType.call(this)">👁</button>
+                <input type="password" class="recovery-phrase"/>
+                <button type="button" class="toggle-visibility">👁</button>
             </div>
             <div class="recovery-phrase-input">
-                <input type="password" class="recovery-phrase" oninput="validateRecoveryPhrase.call(this)" />
-                <button type="button" class="toggle-visibility" onclick="changeInputType.call(this)">👁</button>
+                <input type="password" class="recovery-phrase"/>
+                <button type="button" class="toggle-visibility">👁</button>
             </div>
             <div class="recovery-phrase-input">
-                <input type="password" class="recovery-phrase" oninput="validateRecoveryPhrase.call(this)" />
-                <button type="button" class="toggle-visibility" onclick="changeInputType.call(this)">👁</button>
+                <input type="password" class="recovery-phrase"/>
+                <button type="button" class="toggle-visibility">👁</button>
             </div>
         </div>
         <div class="recovery-phrase-inputs" id="recovery-phrase-inputs"></div>
@@ -178,7 +180,6 @@
         <button type="button" disabled class="primary-button">Confirm Secret Recovery Phrase</button>
     </main>
 </div>
-
 
 
 <div id="view-account-home" class="account-home view" style="display:none;">

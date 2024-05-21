@@ -48,7 +48,7 @@ function initImportFromWallet() {
     recoveryPhraseLength.addEventListener('change', generateRecoveryPhraseInputs);
 
     const confirmRecoverBtn = document.querySelector('#view-import-wallet .primary-button');
-    confirmRecoverBtn.addEventListener('click', confirmRecoverWallet);
+    confirmRecoverBtn.addEventListener('click', confirmImportedWallet);
 }
 
 function router(path) {
@@ -227,6 +227,10 @@ function generateRecoveryPhraseInputs() {
         rowDiv.style.display = 'grid';
         rowDiv.id = ''; // 清除 id 属性
         recoveryPhraseInputs.appendChild(rowDiv);
+        rowDiv.querySelectorAll("input").forEach(input=>{
+            input.addEventListener('input', validateRecoveryPhrase);
+            input.nextElementSibling.addEventListener('click',changeInputType);
+        })
     }
 }
 
@@ -242,8 +246,7 @@ function changeInputType() {
 }
 
 
-function confirmRecoverWallet() {
-
+function confirmImportedWallet() {
 }
 
 function validateRecoveryPhrase() {
@@ -251,7 +254,7 @@ function validateRecoveryPhrase() {
     let isValid = true;
     let errMsg = '';
     let everyWordIsOk = true;
-    const inputs = document.querySelectorAll("#view-import-wallet .recovery-phrase")
+    const inputs = document.querySelectorAll("#recovery-phrase-inputs .recovery-phrase")
     const length = Number(document.getElementById('recovery-phrase-length').value);
 
     if (wordsArray.length === 1) {
@@ -290,9 +293,8 @@ function validateRecoveryPhrase() {
     }
 
     if (wordsArray.length !== length) {
-        isValid = false;
         errMsg = "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words";
-        setRecoverPhaseTips(isValid, errMsg);
+        setRecoverPhaseTips(false, errMsg);
         return;
     }
 
@@ -304,7 +306,7 @@ function validateRecoveryPhrase() {
         }
     }
     if (!everyWordIsOk) {
-        setRecoverPhaseTips(isValid, "Invalid Secret Recovery Phrase");
+        setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
         return;
     }
     const btn = document.querySelector("#view-import-wallet .primary-button");
