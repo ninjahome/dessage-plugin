@@ -1,9 +1,7 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 let __key_for_mnemonic_temp = null;
 
-async function initWelcomePage() {
-    await initDatabase();
-
+function initWelcomeDiv() {
     const agreeCheckbox = document.getElementById('welcome-agree');
     const createButton = document.getElementById('welcome-create');
     createButton.addEventListener('click', () => {
@@ -17,7 +15,9 @@ async function initWelcomePage() {
 
     const importButton = document.getElementById('welcome-import');
     importButton.addEventListener('click', importWallet);
+}
 
+function initPasswordDiv() {
     const passwordAgreeCheckbox = document.getElementById('password-agree');
     const createPasswordButton = document.querySelector('#view-create-password .primary-button');
 
@@ -27,41 +27,53 @@ async function initWelcomePage() {
     });
     createPasswordButton.addEventListener('click', createWallet);
 
-
     const showPasswordButtons = document.querySelectorAll('.show-password');
     showPasswordButtons.forEach(button => {
         button.addEventListener('click', showPassword);
     });
+}
 
-
+function initMnemonicDiv() {
     const nextBtnForConfirm = document.querySelector('#view-recovery-phrase .primary-button');
     nextBtnForConfirm.addEventListener('click', nextToConfirmPage);
+}
 
-
+function initMnemonicConfirmDiv() {
     const confirmPhraseBtn = document.querySelector("#view-confirm-recovery .primary-button")
     confirmPhraseBtn.addEventListener('click', confirmUserInputPhrase);
+}
 
-
+function initImportFromWallet() {
     const recoveryPhraseLength = document.getElementById('recovery-phrase-length');
-    const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs');
     recoveryPhraseLength.addEventListener('change', generateRecoveryPhraseInputs);
 
     const confirmRecoverBtn = document.querySelector('#view-import-wallet .primary-button');
     confirmRecoverBtn.addEventListener('click', confirmRecoverWallet);
+}
 
+function router(path) {
+    if (path === '#onboarding/recovery-phrase') {
+        displayMnemonic();
+    }
+    if (path === '#onboarding/recovery-phrase') {
+        displayConfirmVal();
+    }
+    if (path === '#onboarding/import-wallet') {
+        generateRecoveryPhraseInputs();
+    }
+}
+
+async function initWelcomePage() {
+    await initDatabase();
+    initWelcomeDiv();
+    initPasswordDiv();
+    initMnemonicDiv();
+    initMnemonicConfirmDiv();
+    initImportFromWallet();
 
     window.addEventListener('hashchange', function () {
         showView(window.location.hash);
     });
-    if (window.location.hash === '#onboarding/recovery-phrase') {
-        displayMnemonic();
-    }
-    if (window.location.hash === '#onboarding/recovery-phrase') {
-        displayConfirmVal();
-    }
-    if (window.location.hash === '#onboarding/import-wallet') {
-        generateRecoveryPhraseInputs();
-    }
 
     showView(window.location.hash || '#onboarding/welcome');
 
@@ -93,6 +105,7 @@ function showView(hash) {
     if (targetView) {
         targetView.style.display = 'block';
     }
+    router(hash);
 }
 
 async function createWallet() {
@@ -202,43 +215,106 @@ function confirmUserInputPhrase() {
     navigateTo('#onboarding/account-home');
 }
 
-
 function generateRecoveryPhraseInputs() {
+    setRecoverPhaseTips(true, '');
     const length = document.getElementById('recovery-phrase-length').value;
     const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs');
     recoveryPhraseInputs.innerHTML = '';
 
-    for (let i = 0; i < length; i++) {
-        if (i % 3 === 0) {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'recovery-phrase-row';
-            recoveryPhraseInputs.appendChild(rowDiv);
-        }
-
-        const inputDiv = document.createElement('div');
-        inputDiv.className = 'recovery-phrase-input';
-
-        const input = document.createElement('input');
-        input.type = 'password';
-        input.className = 'recovery-phrase';
-        input.id = `recovery-phrase-${i + 1}`;
-
-        const toggleButton = document.createElement('button');
-        toggleButton.type = 'button';
-        toggleButton.className = 'toggle-visibility';
-        toggleButton.innerText = '🙈';
-        toggleButton.addEventListener('click', () => {
-            input.type = input.type === 'password' ? 'text' : 'password';
-            toggleButton.innerText = input.type === 'password' ? '🙈' : '👁';
-        });
-
-        inputDiv.appendChild(input);
-        inputDiv.appendChild(toggleButton);
-
-        recoveryPhraseInputs.lastChild.appendChild(inputDiv);
+    const template = document.getElementById("recovery-phrase-row-template");
+    for (let i = 0; i < length; i += 3) {
+        const rowDiv = template.cloneNode(true);
+        rowDiv.style.display = 'block';
+        rowDiv.id = ''; // 清除 id 属性
+        recoveryPhraseInputs.appendChild(rowDiv);
+    }
+}
+function changeInputType() {
+    const input = this.previousElementSibling;
+    if (input.type === "password") {
+        input.type = "text";
+        this.textContent = "🙈"; // Change button text to indicate hiding
+    } else {
+        input.type = "password";
+        this.textContent = "👁"; // Change button text to indicate showing
     }
 }
 
 function confirmRecoverWallet() {
 
+}
+
+function validateRecoveryPhrase() {
+    const wordsArray = this.value.split(' ');
+    let isValid = true;
+    let errMsg = '';
+    let everyWordIsOk = true;
+    const inputs = document.querySelectorAll("#view-import-wallet .recovery-phrase")
+    const length = Number(document.getElementById('recovery-phrase-length').value);
+
+    if (wordsArray.length === 1) {
+        const mnemonic = wordsArray[0];
+        isValid = bip39.validateMnemonic(mnemonic);
+        if (!isValid) {
+            setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
+            return;
+        }
+
+        const inputValues = [];
+        inputs.forEach(input => {
+            if (!input.value) {
+                return;
+            }
+
+            const wordIsOk = bip39.validateMnemonic(input.value);
+            if (!wordIsOk) {
+                everyWordIsOk = false;
+            }
+            inputValues.push(input.value);
+        });
+
+        if (!everyWordIsOk) {
+            setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
+            return;
+        }
+
+        if (inputValues.length !== length) {
+            setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words");
+            return;
+        }
+        const btn = document.querySelector("#view-import-wallet .primary-button");
+        btn.disabled = false;
+        return;
+    }
+
+    if (wordsArray.length !== length) {
+        isValid = false;
+        errMsg = "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words";
+        setRecoverPhaseTips(isValid, errMsg);
+        return;
+    }
+
+    for (let i = 0; i < length; i++) {
+        inputs[i].value = wordsArray[i];
+        const wordIsOk = bip39.validateMnemonic(wordsArray[i]);
+        if (!wordIsOk) {
+            everyWordIsOk = false;
+        }
+    }
+    if (!everyWordIsOk) {
+        setRecoverPhaseTips(isValid, "Invalid Secret Recovery Phrase");
+        return;
+    }
+    const btn = document.querySelector("#view-import-wallet .primary-button");
+    btn.disabled = false;
+}
+
+function setRecoverPhaseTips(isValid, errMsg) {
+    const errorMessage = document.getElementById('error-message');
+    if (isValid) {
+        errorMessage.style.display = 'none';
+    } else {
+        errorMessage.style.display = 'block';
+    }
+    errorMessage.innerText = errMsg;
 }

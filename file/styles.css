@@ -383,6 +383,7 @@ p {
     background-color: #f50505; /* 轻微高亮背景 */
 }
 
+
 .import-container {
     text-align: center;
     border: 1px solid #e0e0e0;
@@ -440,14 +441,17 @@ p {
 
 .recovery-phrase-row {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column; /* 按列显示 */
+    align-items: stretch;
     margin-bottom: 10px;
+    width: 100%; /* 确保宽度一致 */
 }
 
 .recovery-phrase-input {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    width: 100%; /* 确保宽度一致 */
 }
 
 .recovery-phrase-input input {
@@ -464,9 +468,16 @@ p {
     color: #007bff;
     padding: 10px;
 }
+
 .toggle-visibility {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 1.2em;
+}
+
+.error-message {
+    color: red;
+    margin-bottom: 10px;
+    display: none;
 }
