@@ -1,16 +1,16 @@
-async function loadLocalWallet(pwd = '123') {
+async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {
         return null;
     }
-
+    let walletObj = [];
     for (let i = 0; i < wallets.length; i++) {
         const walletStr = wallets[i];
         const wallet = new Wallet(walletStr.uuid, walletStr.address, walletStr.cipherTxt, walletStr.mnemonic)
-        wallet.decryptKey(pwd);
-        console.log("open wallet success:=>", wallet.address);
+        console.log("load wallet success:=>", wallet.address);
+        walletObj.push(wallet);
     }
-    return wallets;
+    return walletObj;
 }
 
 class Wallet {
@@ -83,7 +83,7 @@ class ProtocolKey {
         this.NinjaAddr = getNinjaAddress(ninjaKey);
         this.ECPri = ecPriKey;
         this.EthAddr = getEthAddress(ecPriKey);
-        console.log("new key:[ninja addr:", this.NinjaAddr, "] [eth addr:", this.EthAddr,"]");
+        console.log("new key:[ninja addr:", this.NinjaAddr, "] [eth addr:", this.EthAddr, "]");
     }
 }
 

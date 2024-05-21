@@ -205,6 +205,8 @@ function displayConfirmVal() {
             div = document.getElementById("phrase-item-writeOnly").cloneNode(true);
             div.classList.add('hidden-word');
             div.dataset.correctWord = wordsArray[index];
+            div.querySelector(".recovery-input").addEventListener('input', checkConfirmUserPhrase);
+
         } else {
             div = document.getElementById("phrase-item-readOnly").cloneNode(true);
             div.querySelector(".recovery-input").value = word;
@@ -216,24 +218,25 @@ function displayConfirmVal() {
     });
 }
 
-function confirmUserInputPhrase() {
-    const mnemonicContainer = document.querySelector(".recovery-phrase-grid");
-    const itemToCheck = mnemonicContainer.querySelectorAll(".hidden-word");
-    if (itemToCheck.length !== 3) {
-        alert("input all mnemonic please");
-        return;
-    }
-    let confirmed = true;
-    itemToCheck.forEach(div => {
-        if (div.querySelector(".recovery-input").value !== div.dataset.correctWord) {
-            confirmed = false;
-            div.classList.add("error-word");
+function checkConfirmUserPhrase() {
+    const form = this.closest('form');
+    let confirmIsOk = true;
+    form.querySelectorAll(".hidden-word").forEach(div => {
+        const input = div.querySelector(".recovery-input");
+        if (div.dataset.correctWord !== input.value) {
+            confirmIsOk = false;
+            if (input.value.length > 0) {
+                div.classList.add('error-message');
+            }
+        } else {
+            div.classList.remove('error-message');
         }
-    })
+    });
 
-    if (!confirmed) {
-        return;
-    }
+    form.querySelector(".primary-button").disabled = !confirmIsOk;
+}
+
+function confirmUserInputPhrase() {
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
     navigateTo('#onboarding/account-home');
