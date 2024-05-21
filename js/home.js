@@ -216,7 +216,7 @@ function confirmUserInputPhrase() {
 }
 
 function generateRecoveryPhraseInputs() {
-    setRecoverPhaseTips(true, '');
+    setRecoverPhaseTips(false, '');
     const length = document.getElementById('recovery-phrase-length').value;
     const recoveryPhraseInputs = document.getElementById('recovery-phrase-inputs');
     recoveryPhraseInputs.innerHTML = '';
@@ -248,10 +248,9 @@ function changeInputType() {
 
 function confirmImportedWallet() {
 }
-
+const wordlist = bip39.wordlists.english;
 function validateRecoveryPhrase() {
     const wordsArray = this.value.split(' ');
-    let isValid = true;
     let errMsg = '';
     let everyWordIsOk = true;
     const inputs = document.querySelectorAll("#recovery-phrase-inputs .recovery-phrase")
@@ -259,8 +258,7 @@ function validateRecoveryPhrase() {
 
     if (wordsArray.length === 1) {
         const mnemonic = wordsArray[0];
-        isValid = bip39.validateMnemonic(mnemonic);
-        if (!isValid) {
+        if (!wordlist.includes(mnemonic)) {
             setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
             return;
         }
@@ -271,7 +269,7 @@ function validateRecoveryPhrase() {
                 return;
             }
 
-            const wordIsOk = bip39.validateMnemonic(input.value);
+            const wordIsOk =  wordlist.includes(input.value) ;
             if (!wordIsOk) {
                 everyWordIsOk = false;
             }
@@ -287,8 +285,7 @@ function validateRecoveryPhrase() {
             setRecoverPhaseTips(false, "Secret Recovery Phrases contain 12, 15, 18, 21, or 24 words");
             return;
         }
-        const btn = document.querySelector("#view-import-wallet .primary-button");
-        btn.disabled = false;
+        setRecoverPhaseTips(true,"");
         return;
     }
 
@@ -300,7 +297,7 @@ function validateRecoveryPhrase() {
 
     for (let i = 0; i < length; i++) {
         inputs[i].value = wordsArray[i];
-        const wordIsOk = bip39.validateMnemonic(wordsArray[i]);
+        const wordIsOk = wordlist.includes(wordsArray[i]);
         if (!wordIsOk) {
             everyWordIsOk = false;
         }
@@ -309,16 +306,24 @@ function validateRecoveryPhrase() {
         setRecoverPhaseTips(false, "Invalid Secret Recovery Phrase");
         return;
     }
-    const btn = document.querySelector("#view-import-wallet .primary-button");
-    btn.disabled = false;
+    const str = wordsArray.join(' ');
+    const valid = bip39.validateMnemonic(str);
+    if (!valid){
+        setRecoverPhaseTips(false, "Invalid Mnemonic String");
+        return
+    }
+
+    setRecoverPhaseTips(true,"");
 }
 
 function setRecoverPhaseTips(isValid, errMsg) {
     const errorMessage = document.getElementById('error-message');
     if (isValid) {
         errorMessage.style.display = 'none';
+        document.querySelector("#view-import-wallet .primary-button").disabled = false;
     } else {
         errorMessage.style.display = 'block';
+        document.querySelector("#view-import-wallet .primary-button").disabled = true;
     }
     errorMessage.innerText = errMsg;
 }
