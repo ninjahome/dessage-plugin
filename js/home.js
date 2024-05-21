@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
+let ___mnemonic_in_mem = null;
 
 function initWelcomeDiv() {
     const agreeCheckbox = document.getElementById('welcome-agree');
@@ -39,10 +40,10 @@ function initMnemonicDiv() {
     nextBtnForConfirm.addEventListener('click', nextToConfirmPage);
     document.getElementById("view-recovery-phrase-hide-seed").addEventListener('click', hideSeedDiv)
     document.getElementById("view-recovery-phrase-copy-seed").addEventListener('click', () => {
-        if (!__key_for_mnemonic_temp) {
+        if (!___mnemonic_in_mem) {
             return;
         }
-        navigator.clipboard.writeText(__key_for_mnemonic_temp).then(r => {
+        navigator.clipboard.writeText(___mnemonic_in_mem).then(r => {
             alert("copy success");
         })
     })
@@ -73,7 +74,7 @@ function router(path) {
     if (path === '#onboarding/recovery-phrase') {
         displayMnemonic();
     }
-    if (path === '#onboarding/recovery-phrase') {
+    if (path === '#onboarding/confirm-recovery') {
         displayConfirmVal();
     }
     if (path === '#onboarding/import-wallet') {
@@ -133,7 +134,8 @@ async function createWallet() {
     }
 
     const mnemonic = bip39.generateMnemonic();
-    __key_for_mnemonic_temp = mnemonic;
+    ___mnemonic_in_mem = mnemonic;
+    sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
     navigateTo('#onboarding/recovery-phrase');
     displayMnemonic();
 
@@ -147,11 +149,10 @@ function importWallet() {
 }
 
 function displayMnemonic() {
-    if (!__key_for_mnemonic_temp) {
-        console.log("invalid mnemonic");
-        return;
+    if (!___mnemonic_in_mem) {
+        ___mnemonic_in_mem = sessionStorage.getItem(__key_for_mnemonic_temp);
     }
-    const wordsArray = __key_for_mnemonic_temp.split(' ');
+    const wordsArray = ___mnemonic_in_mem.split(' ');
     const mnemonicContainer = document.querySelector(".recovery-phrase-container");
     mnemonicContainer.innerHTML = ''; // 清空以前的内容
 
@@ -183,12 +184,11 @@ function nextToConfirmPage() {
 }
 
 function displayConfirmVal() {
-    if (!__key_for_mnemonic_temp) {
-        console.log("error for mnemonic=>", __key_for_mnemonic_temp);
-        return;
+    if (!___mnemonic_in_mem) {
+        ___mnemonic_in_mem = sessionStorage.getItem(__key_for_mnemonic_temp);
     }
 
-    const wordsArray = __key_for_mnemonic_temp.split(' ');
+    const wordsArray = ___mnemonic_in_mem.split(' ');
     const indices = new Map();
     while (indices.size < 3) {
         const randomIndex = Math.floor(Math.random() * wordsArray.length);
@@ -234,7 +234,8 @@ function confirmUserInputPhrase() {
     if (!confirmed) {
         return;
     }
-    __key_for_mnemonic_temp = null;
+    ___mnemonic_in_mem = null;
+    sessionStorage.removeItem(__key_for_mnemonic_temp);
     navigateTo('#onboarding/account-home');
 }
 
@@ -364,7 +365,8 @@ function confirmImportedWallet() {
         return;
     }
 
-    __key_for_mnemonic_temp = mnemonic;
+    ___mnemonic_in_mem = mnemonic;
+    sessionStorage.setItem(__key_for_mnemonic_temp, mnemonic);
     navigateTo('#onboarding/password-for-imported');
 }
 
@@ -386,9 +388,10 @@ function showPassword() {
 
 async function actionOfWalletImport() {
     const password = document.getElementById("imported-new-password").value;
-    const wallet = NewWallet(__key_for_mnemonic_temp, password);
+    const wallet = NewWallet(___mnemonic_in_mem, password);
     await wallet.syncToDb();
-    __key_for_mnemonic_temp = null;
+    ___mnemonic_in_mem = null;
+    sessionStorage.removeItem(__key_for_mnemonic_temp);
     navigateTo('#onboarding/account-home');
 }
 
