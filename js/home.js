@@ -224,11 +224,12 @@ function generateRecoveryPhraseInputs() {
     const template = document.getElementById("recovery-phrase-row-template");
     for (let i = 0; i < length; i += 3) {
         const rowDiv = template.cloneNode(true);
-        rowDiv.style.display = 'block';
+        rowDiv.style.display = 'grid';
         rowDiv.id = ''; // 清除 id 属性
         recoveryPhraseInputs.appendChild(rowDiv);
     }
 }
+
 function changeInputType() {
     const input = this.previousElementSibling;
     if (input.type === "password") {
@@ -239,6 +240,7 @@ function changeInputType() {
         this.textContent = "👁"; // Change button text to indicate showing
     }
 }
+
 
 function confirmRecoverWallet() {
 

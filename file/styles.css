@@ -440,18 +440,17 @@ p {
 }
 
 .recovery-phrase-row {
-    display: flex;
-    flex-direction: column; /* 按列显示 */
-    align-items: stretch;
+    display: grid; /* 使用 grid 布局 */
+    grid-template-columns: 1fr 1fr 1fr; /* 设置三列 */
+    gap: 10px; /* 设置列之间的间距 */
+    width: 100%;
     margin-bottom: 10px;
-    width: 100%; /* 确保宽度一致 */
 }
 
 .recovery-phrase-input {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
-    width: 100%; /* 确保宽度一致 */
+    width: 100%;
 }
 
 .recovery-phrase-input input {
