@@ -77,13 +77,20 @@ function NewWallet(mnemonic, password) {
 
 class ProtocolKey {
     constructor(pri) {
+
         const ninjaKey = castToNinjaKey(pri);
         const ecPriKey = castToEcKey(pri);
         this.NinjaKey = ninjaKey;
-        this.NinjaAddr = getNinjaAddress(ninjaKey);
         this.ECPri = ecPriKey;
+
+        this.NinjaAddr = getNinjaAddress(ninjaKey);
         this.EthAddr = getEthAddress(ecPriKey);
-        console.log("new key:[ninja addr:", this.NinjaAddr, "] [eth addr:", this.EthAddr, "]");
+        this.BtcAddr = getBtcAddress(ecPriKey);
+        this.BtcTestAddr = getBtcAddress(ecPriKey,true);
+        console.log("new key:[ninja addr:", this.NinjaAddr,
+            "] [eth addr:", this.EthAddr, "]",
+            "] [btc addr:", this.BtcAddr, "]",
+            "] [test btc addr:", this.BtcTestAddr, "]");
     }
 }
 
@@ -93,6 +100,37 @@ function getEthAddress(ecPri) {
     const hashedPublicKey = EthereumJSUtil.keccak256(publicKey);
     // console.log("Eth Public Key:", ethPubKey);
     return '0x' + hashedPublicKey.slice(-40);
+}
+
+function getBtcAddress(ecPriKey, isTestNet = false) {
+    // 获取压缩公钥
+    const pubKey = ecPriKey.getPublic(true, 'hex'); // true 表示压缩格式
+    console.log("Compressed Public Key:", pubKey);
+
+    const pubKeyBuffer = hexStringToByteArray(pubKey);
+    const pubKeySha256 = CryptoLib.SHA256(pubKeyBuffer).toString();
+    // console.log("SHA-256:", pubKeySha256);
+
+    const pubKeyRipemd160 = CryptoLib.RIPEMD160(hexStringToByteArray(pubKeySha256)).toString();
+    // console.log("RIPEMD-160:", pubKeyRipemd160);
+
+    // 添加版本前缀（0x00 用于主网地址）
+    let version = '00';
+    if (isTestNet) {
+        version = '0x6F';
+    }
+    const versionedPayload = version + pubKeyRipemd160;
+
+    // 计算校验和（两次 SHA-256 哈希的前 4 字节）
+    const checksum = CryptoLib.SHA256(CryptoLib.SHA256(hexStringToByteArray(versionedPayload))).toString().slice(0, 8);
+    // console.log("Checksum:", checksum);
+
+    // 添加校验和到版本化有效载荷
+    const finalPayload = versionedPayload + checksum;
+
+    // 转换为 Base58Check 格式
+    return base58.encode(hexStringToByteArray(finalPayload));
+
 }
 
 function castToEcKey(secretKey) {
