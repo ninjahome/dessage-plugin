@@ -16,6 +16,9 @@ function initWelcomeDiv() {
 
     const importButton = document.getElementById('welcome-import');
     importButton.addEventListener('click', importWallet);
+
+    const priArray = hexStringToByteArray('9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60');
+    const key = new ProtocolKey(priArray);
 }
 
 function initPasswordDiv() {

@@ -54,6 +54,9 @@ function hexStringToByteArray(hexString) {
     }
     return byteArray;
 }
+function byteArrayToHexString(byteArray) {
+    return Array.prototype.map.call(byteArray, byte => ('00' + byte.toString(16)).slice(-2)).join('');
+}
 
 
 function NewWallet(mnemonic, password) {
@@ -84,59 +87,125 @@ class ProtocolKey {
         this.ECPri = ecPriKey;
 
         this.NinjaAddr = getNinjaAddress(ninjaKey);
-        this.EthAddr = getEthAddress(ecPriKey);
-        this.BtcAddr = getBtcAddress(ecPriKey);
-        this.BtcTestAddr = getBtcAddress(ecPriKey,true);
+
+        // const ecPubKey = ecPriKey.getPublic(true, 'hex');
+        // console.log("Eth Public Key:", ecPubKey);
+
+        this.EthAddr = generateEthAddress(ecPriKey);
+        this.BtcAddr = generateBtcAddress(ecPriKey);
+        this.BtcTestAddr = generateBtcAddress(ecPriKey, true);
+        // this.NostrAddr = generateNostrAddress(ecPriKey);
         console.log("new key:[ninja addr:", this.NinjaAddr,
             "] [eth addr:", this.EthAddr, "]",
             "] [btc addr:", this.BtcAddr, "]",
-            "] [test btc addr:", this.BtcTestAddr, "]");
+            "] [test btc addr:", this.BtcTestAddr, "]",
+            "] [nostr addr:", this.NostrAddr, "]");
     }
 }
 
-function getEthAddress(ecPri) {
-    const publicKey = ecPri.getPublic('hex', false);
-
-    const hashedPublicKey = EthereumJSUtil.keccak256(publicKey);
-    // console.log("Eth Public Key:", ethPubKey);
+function generateEthAddress(ecPriKey) {
+    const publicKey = ecPriKey.getPublic();
+    const publicKeyBytes = publicKey.encode('array', false).slice(1);
+    const hashedPublicKey = EthereumJSUtil.keccak256(publicKeyBytes).toString('hex');
     return '0x' + hashedPublicKey.slice(-40);
 }
 
-function getBtcAddress(ecPriKey, isTestNet = false) {
-    // 获取压缩公钥
-    const pubKey = ecPriKey.getPublic(true, 'hex'); // true 表示压缩格式
-    console.log("Compressed Public Key:", pubKey);
+// Function to calculate SHA256 hash
+function sha256(buffer) {
+    const wordArray = CryptoLib.lib.WordArray.create(buffer);
+    return CryptoLib.SHA256(wordArray)//.toString(CryptoLib.enc.Hex);
+}
 
-    const pubKeyBuffer = hexStringToByteArray(pubKey);
-    const pubKeySha256 = CryptoLib.SHA256(pubKeyBuffer).toString();
-    // console.log("SHA-256:", pubKeySha256);
+// Function to calculate RIPEMD160 hash
+function ripemd160(buffer) {
+    const wordArray = CryptoLib.lib.WordArray.create(buffer);
+    return CryptoLib.RIPEMD160(wordArray).toString(CryptoLib.enc.Hex);
+}
 
-    const pubKeyRipemd160 = CryptoLib.RIPEMD160(hexStringToByteArray(pubKeySha256)).toString();
-    // console.log("RIPEMD-160:", pubKeyRipemd160);
-
-    // 添加版本前缀（0x00 用于主网地址）
-    let version = '00';
-    if (isTestNet) {
-        version = '0x6F';
+function calcHash(buf, hasher) {
+    const wordArray = CryptoLib.lib.WordArray.create(buf);
+    return hasher(wordArray);
+}
+function wordArrayToByteArray(wordArray) {
+    const byteArray = [];
+    for (let i = 0; i < wordArray.sigBytes; i++) {
+        byteArray.push((wordArray.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);
     }
-    const versionedPayload = version + pubKeyRipemd160;
+    return byteArray;
+}
 
-    // 计算校验和（两次 SHA-256 哈希的前 4 字节）
-    const checksum = CryptoLib.SHA256(CryptoLib.SHA256(hexStringToByteArray(versionedPayload))).toString().slice(0, 8);
-    // console.log("Checksum:", checksum);
+// Hash160 函数，计算 RIPEMD-160(SHA-256(buf))
+function hash160(buf) {
+    console.log(buf);
+    // console.log(sha256(buf),hexStringToByteArray(sha256(buf)));
+    const sha256Hash = calcHash(buf, CryptoLib.SHA256);
+    console.log(wordArrayToByteArray(sha256Hash));
+    const ripemd160Hash = calcHash(sha256Hash, CryptoLib.RIPEMD160);
+    console.log(wordArrayToByteArray(ripemd160Hash));
+    return ripemd160Hash;
+}
 
-    // 添加校验和到版本化有效载荷
-    const finalPayload = versionedPayload + checksum;
+async function calculateSha256(byteArray) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', byteArray);
+    return new Uint8Array(hashBuffer);
+}
 
-    // 转换为 Base58Check 格式
-    return base58.encode(hexStringToByteArray(finalPayload));
+async function generateBtcAddress(ecPriKey, isTestNet = false) {
+    console.log("ec pub key:=>", ecPriKey.getPublic(true, 'hex'));
+    // const pubKey = ecPriKey.getPublic(true, 'array');
+    const pubKey = ecPriKey.getPublic(true, 'hex')
+    console.log('Compressed Public Key:', pubKey);
+    const publicKeyBytes = hexStringToByteArray(pubKey)
+    // const sha256Hash = await calculateSha256(publicKeyBytes);
+    const sha256Hash = await sha256(publicKeyBytes);
+    console.log("------->>",sha256Hash);
+    console.log("------->>",wordArrayToByteArray(sha256Hash));
+    // const bytes160 = hash160(pubKey);
+    // console.log(wordArrayToByteArray(bytes160));
+    //
+    // // Calculate SHA256 hash of the public key
+    // const pubKeySha256 = sha256(pubKey);
+    //
+    // // Calculate RIPEMD160 hash of the SHA256 hash
+    // const pubKeyRipemd160 = ripemd160(hexStringToByteArray(pubKeySha256));
+    //
+    // // Add version byte (0x00 for Main Network)
+    // let version = '00';
+    // if(isTestNet){
+    //     version = '6f';
+    // }
+    // const versionedPayload = version + pubKeyRipemd160;
+    //
+    // // Calculate double SHA256 hash for checksum
+    // const checksum = sha256(hexStringToByteArray(sha256(hexStringToByteArray(versionedPayload)))).slice(0, 8);
+    //
+    // // Concatenate versioned payload and checksum
+    // const finalPayload = versionedPayload + checksum;
+    //
+    // // Encode to Base58
+    // const btcAddress = base58.encode(hexStringToByteArray(finalPayload));
+    // console.log(btcAddress);
+    // return btcAddress;
+}
 
+function generateNostrAddress(ecPriKey) {
+    const publicKey = ecPriKey.getPublic('hex');
+    const byteArray = hexStringToByteArray(publicKey);
+    console.log(byteArray.length);
+    if (byteArray.length > 32) {
+        throw new Error('Public key length exceeds 32 bytes');
+    }
+    const words = Bech32Lib.toWords(byteArray);
+    return Bech32Lib.encode('npub', words);
 }
 
 function castToEcKey(secretKey) {
     const EC = elliptic;
     const curve = new EC('secp256k1');
     const ecPriKey = curve.keyFromPrivate(secretKey);
+
+    // const privateKeyHex = ecPriKey.getPrivate('hex');
+    // console.log('Private Key:', privateKeyHex);
 
     // The privateKey.D must < N
     if (ecPriKey.getPrivate().gte(curve.n)) {

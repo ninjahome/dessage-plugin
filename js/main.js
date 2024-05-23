@@ -6,6 +6,7 @@ async function initDessagePlugin() {
 
     const wallets = await loadLocalWallet();
     console.log("all wallets:=>", wallets);
+    // wallets[0].decryptKey('12345678')
     // if (!wallets || wallets.length === 0) {
     chrome.tabs.create({
         url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
