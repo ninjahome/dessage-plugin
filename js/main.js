@@ -6,22 +6,25 @@ async function initDessagePlugin() {
 
     const wallets = await loadLocalWallet();
     console.log("all wallets:=>", wallets);
-    // wallets[0].decryptKey('12345678')
-    // if (!wallets || wallets.length === 0) {
-    chrome.tabs.create({
-        url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
-    });
-    // }
-
+    if (!wallets || wallets.length === 0) {
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
+        });
+    }
     __walletList = wallets;
 }
 
-function openAllWallets(pwd) {
+function openAllWallets() {
     if (!__walletList || __walletList.length === 0) {
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
+        });
         return;
     }
 
-    __walletList.forEach(wallet=>{
+    const pwd = document.querySelector(".login-container input").value;
+
+    __walletList.forEach(wallet => {
         wallet.decryptKey(pwd);
     })
 }

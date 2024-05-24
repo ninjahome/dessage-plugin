@@ -228,7 +228,7 @@ function testPeerToPeerCrypto(msg) {
     const encryptedMessage = nacl.box.after(message, nonce, sharedKeyAlice);
 
     const decryptedMessage = nacl.box.open.after(encryptedMessage, nonce, sharedKeyBob);
-    console.log(nacl.util.encodeUTF8(decryptedMessage));
+    // console.log(nacl.util.encodeUTF8(decryptedMessage));
 }
 
 // 定义 encryptMnemonic 和 decryptMnemonic 函数

@@ -73,21 +73,6 @@ function initImportPasswordDiv() {
     document.getElementById("imported-confirm-password").addEventListener('input', checkImportPassword)
 }
 
-function router(path) {
-    if (path === '#onboarding/recovery-phrase') {
-        displayMnemonic();
-    }
-    if (path === '#onboarding/confirm-recovery') {
-        displayConfirmVal();
-    }
-    if (path === '#onboarding/import-wallet') {
-        generateRecoveryPhraseInputs();
-    }
-    if (path === '#onboarding/account-home') {
-        prepareAccountData();
-    }
-}
-
 async function initWelcomePage() {
     await initDatabase();
     initWelcomeDiv();
@@ -109,18 +94,6 @@ async function initWelcomePage() {
 function navigateTo(hash) {
     history.pushState(null, null, hash);
     showView(hash);
-}
-
-function showView(hash) {
-    const views = document.querySelectorAll('.view');
-    views.forEach(view => view.style.display = 'none');
-
-    const id = hash.replace('#onboarding/', 'view-');
-    const targetView = document.getElementById(id);
-    if (targetView) {
-        targetView.style.display = 'block';
-    }
-    router(hash);
 }
 
 async function createWallet() {
@@ -275,7 +248,6 @@ function changeInputType() {
     }
 }
 
-
 const wordlist = bip39.wordlists.english;
 
 function validateRecoveryPhrase() {
@@ -356,7 +328,6 @@ function setRecoverPhaseTips(isValid, errMsg) {
     }
     errorMessage.innerText = errMsg;
 }
-
 
 function confirmImportedWallet() {
     const inputs = document.querySelectorAll("#recovery-phrase-inputs .recovery-phrase")

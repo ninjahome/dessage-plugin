@@ -3,49 +3,30 @@
 <head>
     <title>Simple Menu</title>
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://ajax.googleapis.com;">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            width: 360px; /* 宽度为 360px */
-            height: 600px; /* 高度为 600px */
-            overflow: hidden; /* 防止内容溢出 */
-            display: flex;
-            flex-direction: column;
-        }
-
-        ul {
-            padding: 10px;
-            list-style: none;
-            margin: 0;
-            flex-grow: 1;
-            overflow-y: auto; /* 允许纵向滚动 */
-        }
-
-        li {
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        button {
-            width: 80%; /* 按钮宽度相对父容器调整 */
-            padding: 10px;
-            font-size: 16px; /* 增大字体易于点击 */
-        }
-    </style>
+    <link rel="stylesheet" href="/file/main.css">
 </head>
 <body>
-<ul>
-    <li>
-        <button>Option 1</button>
-    </li>
-    <li>
-        <button>Option 2</button>
-    </li>
-    <li>
-        <button>Option 3</button>
-    </li>
-</ul>
+<div class="login-container">
+    <div class="login-header">
+        <img src="/file/logo_48.png" alt="Dessage Logo" class="logo">
+    </div>
+    <div class="login-body">
+        <h1>Welcome back!</h1>
+        <p>The decentralized web awaits</p>
+        <form>
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+            </div>
+            <button type="submit" class="primary-button">Unlock</button>
+            <a href="#" class="forgot-password">Forgot password?</a>
+        </form>
+    </div>
+    <div class="login-footer">
+        <p>Need help? Contact <a href="#">Dessage support</a></p>
+    </div>
+</div>
+
 
 <script src="/js/bip39.browser.js"></script>
 <script src="/js/wallet.js"></script>
@@ -55,6 +36,8 @@
 <script src="/js/tweetnacl.bundle.js"></script>
 <script src="/js/crypto.bundle.js"></script>
 <script src="/js/ethereumjs-util.bundle.js"></script>
+<script src="/js/bech32.bundle.js"></script>
+<script src="/js/common.js"></script>
 <script src="/js/main.js"></script>
 </body>
 </html>
