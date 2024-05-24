@@ -54,6 +54,7 @@ function hexStringToByteArray(hexString) {
     }
     return byteArray;
 }
+
 function byteArrayToHexString(byteArray) {
     return Array.prototype.map.call(byteArray, byte => ('00' + byte.toString(16)).slice(-2)).join('');
 }
@@ -126,6 +127,7 @@ function calcHash(buf, hasher) {
     const wordArray = CryptoLib.lib.WordArray.create(buf);
     return hasher(wordArray);
 }
+
 function wordArrayToByteArray(wordArray) {
     const byteArray = [];
     for (let i = 0; i < wordArray.sigBytes; i++) {
@@ -150,42 +152,37 @@ async function calculateSha256(byteArray) {
     return new Uint8Array(hashBuffer);
 }
 
-async function generateBtcAddress(ecPriKey, isTestNet = false) {
-    console.log("ec pub key:=>", ecPriKey.getPublic(true, 'hex'));
-    // const pubKey = ecPriKey.getPublic(true, 'array');
+ function generateBtcAddress(ecPriKey, isTestNet = false) {
     const pubKey = ecPriKey.getPublic(true, 'hex')
-    console.log('Compressed Public Key:', pubKey);
+    // console.log('Compressed Public Key:', pubKey);
     const publicKeyBytes = hexStringToByteArray(pubKey)
-    // const sha256Hash = await calculateSha256(publicKeyBytes);
-    const sha256Hash = await sha256(publicKeyBytes);
-    console.log("------->>",sha256Hash);
-    console.log("------->>",wordArrayToByteArray(sha256Hash));
-    // const bytes160 = hash160(pubKey);
-    // console.log(wordArrayToByteArray(bytes160));
-    //
-    // // Calculate SHA256 hash of the public key
-    // const pubKeySha256 = sha256(pubKey);
-    //
-    // // Calculate RIPEMD160 hash of the SHA256 hash
-    // const pubKeyRipemd160 = ripemd160(hexStringToByteArray(pubKeySha256));
-    //
-    // // Add version byte (0x00 for Main Network)
-    // let version = '00';
-    // if(isTestNet){
-    //     version = '6f';
-    // }
-    // const versionedPayload = version + pubKeyRipemd160;
-    //
-    // // Calculate double SHA256 hash for checksum
-    // const checksum = sha256(hexStringToByteArray(sha256(hexStringToByteArray(versionedPayload)))).slice(0, 8);
-    //
-    // // Concatenate versioned payload and checksum
-    // const finalPayload = versionedPayload + checksum;
-    //
-    // // Encode to Base58
-    // const btcAddress = base58.encode(hexStringToByteArray(finalPayload));
-    // console.log(btcAddress);
-    // return btcAddress;
+    const wordArray = CryptoLib.lib.WordArray.create(publicKeyBytes);
+    const sha256Hash = CryptoLib.SHA256(wordArray);
+    // console.log("hash256------->>", wordArrayToByteArray(sha256Hash));
+    const bytes160 = CryptoLib.RIPEMD160(sha256Hash);
+    const ripemd160Hash = wordArrayToByteArray(bytes160)
+    // console.log("RIPEMD160------->>", ripemd160Hash);
+
+    let version = '00'; // Mainnet version byte for P2PKH addresses
+    if (isTestNet) {
+        version = '6f';
+    }
+    const versionByte = new Uint8Array([parseInt(version, 16)]);
+    const versionedPayload = new Uint8Array(versionByte.length + ripemd160Hash.length);
+    versionedPayload.set(versionByte, 0);
+    versionedPayload.set(ripemd160Hash, versionByte.length);
+
+    const wordPayload = CryptoLib.lib.WordArray.create(versionedPayload);
+    const checksum = CryptoLib.SHA256(CryptoLib.SHA256(wordPayload));
+    const checkSumArray = wordArrayToByteArray(checksum);
+    // const checksum = await calculateSha256(await calculateSha256(versionedPayload));
+    const finalPayload = new Uint8Array(versionedPayload.length + 4);
+    finalPayload.set(versionedPayload, 0);
+    finalPayload.set(checkSumArray.slice(0, 4), versionedPayload.length);
+
+    const btcAddress = base58.encode(finalPayload);
+    console.log('Bitcoin Address:', btcAddress);
+    return btcAddress;
 }
 
 function generateNostrAddress(ecPriKey) {

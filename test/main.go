@@ -6,6 +6,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -15,6 +16,10 @@ import (
 )
 
 func main() {
+	test2()
+}
+
+func test2() {
 	var key, _ = crypto.HexToECDSA("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
 	pubBytes := crypto.FromECDSAPub(&key.PublicKey)
 	fmt.Println(len(pubBytes), hexutil.Encode(pubBytes))
@@ -38,10 +43,11 @@ func main() {
 
 	var hasher2 = ripemd160.New()
 	hasher2.Write(buf2)
-	var buf3 = hasher2.Sum(nil)
-	fmt.Println(buf3)
-	//bytes160 := btcutil.Hash160(btcPublicKey.SerializeCompressed())
-	//fmt.Println(bytes160)
+	var hash160 = hasher2.Sum(nil)
+	fmt.Println(hash160)
+
+	var addr = base58.CheckEncode(hash160[:20], 0x00)
+	fmt.Println(addr)
 }
 
 func test1() {
