@@ -1,22 +1,36 @@
 package main
 
 import (
-	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/base58"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/nbd-wtf/go-nostr"
+	"github.com/nbd-wtf/go-nostr/nip19"
 	"github.com/tyler-smith/go-bip39"
-	"golang.org/x/crypto/ripemd160"
 	"log"
 )
 
 func main() {
 	test2()
+}
+
+func test3() {
+	//var key, _ = crypto.HexToECDSA("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
+
+	sk := nostr.GeneratePrivateKey()
+	pk, _ := nostr.GetPublicKey(sk)
+	nsec, _ := nip19.EncodePrivateKey(sk)
+	npub, _ := nip19.EncodePublicKey(pk)
+
+	fmt.Println("sk:", sk)
+	fmt.Println("pk:", pk)
+	fmt.Println(nsec)
+	fmt.Println(npub)
 }
 
 func test2() {
@@ -26,7 +40,11 @@ func test2() {
 
 	var keyAddr = crypto.PubkeyToAddress(key.PublicKey)
 	fmt.Println(keyAddr)
-	btcPublicKey := btcec.PublicKey(key.PublicKey)
+
+	pkBytes, err := hex.DecodeString("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
+	_, btcPublicKey := btcec.PrivKeyFromBytes(pkBytes)
+
+	//btcPublicKey := btcec.PublicKey(key.PublicKey)
 	btcAddress, err := btcutil.NewAddressPubKey(btcPublicKey.SerializeCompressed(), &chaincfg.MainNetParams)
 	if err != nil {
 		log.Fatal(err)
@@ -34,20 +52,20 @@ func test2() {
 	fmt.Println(btcAddress)
 
 	fmt.Println(btcAddress.EncodeAddress())
-	buf := btcPublicKey.SerializeCompressed()
-	fmt.Println(buf)
-	var hasher = sha256.New()
-	hasher.Write(buf)
-	buf2 := hasher.Sum(nil)
-	fmt.Println(buf2)
-
-	var hasher2 = ripemd160.New()
-	hasher2.Write(buf2)
-	var hash160 = hasher2.Sum(nil)
-	fmt.Println(hash160)
-
-	var addr = base58.CheckEncode(hash160[:20], 0x00)
-	fmt.Println(addr)
+	//buf := btcPublicKey.SerializeCompressed()
+	//fmt.Println(buf)
+	//var hasher = sha256.New()
+	//hasher.Write(buf)
+	//buf2 := hasher.Sum(nil)
+	//fmt.Println(buf2)
+	//
+	//var hasher2 = ripemd160.New()
+	//hasher2.Write(buf2)
+	//var hash160 = hasher2.Sum(nil)
+	//fmt.Println(hash160)
+	//
+	//var addr = base58.CheckEncode(hash160[:20], 0x00)
+	//fmt.Println(addr)
 }
 
 func test1() {
@@ -62,14 +80,8 @@ func test1() {
 		log.Fatal(err)
 	}
 
-	// 派生出子私钥
-	childKey, err := masterKey.Child(hdkeychain.HardenedKeyStart + 0)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// 获取私钥
-	btcPrivateKey, err := childKey.ECPrivKey()
+	btcPrivateKey, err := masterKey.ECPrivKey()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -88,13 +100,13 @@ func test1() {
 	//}
 
 	// 获取以太坊地址
-	ethAddress := crypto.PubkeyToAddress(btcPrivateKey.PublicKey)
+	//ethAddress := crypto.PubkeyToAddress(btcPrivateKey.PublicKey)
 
 	fmt.Println("Bitcoin Private Key:", btcPrivateKey.Serialize())
 	fmt.Println("Bitcoin Address:", btcAddress.EncodeAddress())
 	ecdsaPrivateKey := btcPrivateKey.ToECDSA()
 	fmt.Println("Ethereum Private Key:", crypto.FromECDSA(ecdsaPrivateKey))
-	fmt.Println("Ethereum Address:", ethAddress.Hex())
+	//fmt.Println("Ethereum Address:", ethAddress.Hex())
 
 	//curve := btcec.S256()
 	//privKey, pubKey := btcec.PrivKeyFromBytes(curve, secretKey)

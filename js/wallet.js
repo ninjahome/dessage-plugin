@@ -55,8 +55,12 @@ function hexStringToByteArray(hexString) {
     return byteArray;
 }
 
-function byteArrayToHexString(byteArray) {
-    return Array.prototype.map.call(byteArray, byte => ('00' + byte.toString(16)).slice(-2)).join('');
+function wordArrayToByteArray(wordArray) {
+    const byteArray = [];
+    for (let i = 0; i < wordArray.sigBytes; i++) {
+        byteArray.push((wordArray.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);
+    }
+    return byteArray;
 }
 
 
@@ -111,46 +115,6 @@ function generateEthAddress(ecPriKey) {
     return '0x' + hashedPublicKey.slice(-40);
 }
 
-// Function to calculate SHA256 hash
-function sha256(buffer) {
-    const wordArray = CryptoLib.lib.WordArray.create(buffer);
-    return CryptoLib.SHA256(wordArray)//.toString(CryptoLib.enc.Hex);
-}
-
-// Function to calculate RIPEMD160 hash
-function ripemd160(buffer) {
-    const wordArray = CryptoLib.lib.WordArray.create(buffer);
-    return CryptoLib.RIPEMD160(wordArray).toString(CryptoLib.enc.Hex);
-}
-
-function calcHash(buf, hasher) {
-    const wordArray = CryptoLib.lib.WordArray.create(buf);
-    return hasher(wordArray);
-}
-
-function wordArrayToByteArray(wordArray) {
-    const byteArray = [];
-    for (let i = 0; i < wordArray.sigBytes; i++) {
-        byteArray.push((wordArray.words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);
-    }
-    return byteArray;
-}
-
-// Hash160 函数，计算 RIPEMD-160(SHA-256(buf))
-function hash160(buf) {
-    console.log(buf);
-    // console.log(sha256(buf),hexStringToByteArray(sha256(buf)));
-    const sha256Hash = calcHash(buf, CryptoLib.SHA256);
-    console.log(wordArrayToByteArray(sha256Hash));
-    const ripemd160Hash = calcHash(sha256Hash, CryptoLib.RIPEMD160);
-    console.log(wordArrayToByteArray(ripemd160Hash));
-    return ripemd160Hash;
-}
-
-async function calculateSha256(byteArray) {
-    const hashBuffer = await crypto.subtle.digest('SHA-256', byteArray);
-    return new Uint8Array(hashBuffer);
-}
 
  function generateBtcAddress(ecPriKey, isTestNet = false) {
     const pubKey = ecPriKey.getPublic(true, 'hex')
@@ -187,13 +151,10 @@ async function calculateSha256(byteArray) {
 
 function generateNostrAddress(ecPriKey) {
     const publicKey = ecPriKey.getPublic('hex');
-    const byteArray = hexStringToByteArray(publicKey);
-    console.log(byteArray.length);
-    if (byteArray.length > 32) {
-        throw new Error('Public key length exceeds 32 bytes');
-    }
-    const words = Bech32Lib.toWords(byteArray);
-    return Bech32Lib.encode('npub', words);
+    console.log('Public Key:', publicKey);
+    const publicBytes = hexStringToByteArray(publicKey);
+    const words = bech32.toWords(publicBytes);
+    return bech32.encode('npub', words);
 }
 
 function castToEcKey(secretKey) {
