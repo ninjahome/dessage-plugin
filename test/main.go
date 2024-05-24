@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/btcutil/bech32"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -16,13 +17,41 @@ import (
 )
 
 func main() {
-	test2()
+	test4()
+}
+
+func test4() {
+	b, err := hex.DecodeString("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
+	if err != nil {
+		panic(err)
+	}
+
+	_, pk := btcec.PrivKeyFromBytes(b)
+	pBytes := pk.SerializeCompressed()
+	fmt.Println(pBytes)
+	subBts := pBytes[1:]
+	publicKeyHex := hex.EncodeToString(subBts)
+	fmt.Println(publicKeyHex)
+
+	bits5, err := bech32.ConvertBits(subBts, 8, 5, true)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(bits5)
+
+	npub, err := bech32.Encode("npub", bits5)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(npub)
 }
 
 func test3() {
 	//var key, _ = crypto.HexToECDSA("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
 
-	sk := nostr.GeneratePrivateKey()
+	//sk := nostr.GeneratePrivateKey()
+	sk := "9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60"
 	pk, _ := nostr.GetPublicKey(sk)
 	nsec, _ := nip19.EncodePrivateKey(sk)
 	npub, _ := nip19.EncodePublicKey(pk)

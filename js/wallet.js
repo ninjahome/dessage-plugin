@@ -93,13 +93,10 @@ class ProtocolKey {
 
         this.NinjaAddr = getNinjaAddress(ninjaKey);
 
-        // const ecPubKey = ecPriKey.getPublic(true, 'hex');
-        // console.log("Eth Public Key:", ecPubKey);
-
         this.EthAddr = generateEthAddress(ecPriKey);
         this.BtcAddr = generateBtcAddress(ecPriKey);
         this.BtcTestAddr = generateBtcAddress(ecPriKey, true);
-        // this.NostrAddr = generateNostrAddress(ecPriKey);
+        this.NostrAddr = generateNostrAddress(ecPriKey);
         console.log("new key:[ninja addr:", this.NinjaAddr,
             "] [eth addr:", this.EthAddr, "]",
             "] [btc addr:", this.BtcAddr, "]",
@@ -116,7 +113,7 @@ function generateEthAddress(ecPriKey) {
 }
 
 
- function generateBtcAddress(ecPriKey, isTestNet = false) {
+function generateBtcAddress(ecPriKey, isTestNet = false) {
     const pubKey = ecPriKey.getPublic(true, 'hex')
     // console.log('Compressed Public Key:', pubKey);
     const publicKeyBytes = hexStringToByteArray(pubKey)
@@ -139,22 +136,26 @@ function generateEthAddress(ecPriKey) {
     const wordPayload = CryptoLib.lib.WordArray.create(versionedPayload);
     const checksum = CryptoLib.SHA256(CryptoLib.SHA256(wordPayload));
     const checkSumArray = wordArrayToByteArray(checksum);
-    // const checksum = await calculateSha256(await calculateSha256(versionedPayload));
     const finalPayload = new Uint8Array(versionedPayload.length + 4);
     finalPayload.set(versionedPayload, 0);
     finalPayload.set(checkSumArray.slice(0, 4), versionedPayload.length);
 
     const btcAddress = base58.encode(finalPayload);
-    console.log('Bitcoin Address:', btcAddress);
+    // console.log('Bitcoin Address:', btcAddress);
     return btcAddress;
 }
 
 function generateNostrAddress(ecPriKey) {
-    const publicKey = ecPriKey.getPublic('hex');
-    console.log('Public Key:', publicKey);
-    const publicBytes = hexStringToByteArray(publicKey);
-    const words = bech32.toWords(publicBytes);
-    return bech32.encode('npub', words);
+    const ecPubKey = ecPriKey.getPublic(true, 'hex');
+    // console.log('Public Key:', ecPubKey);
+    const publicBytes = hexStringToByteArray(ecPubKey);
+    const subBts = publicBytes.slice(1);
+    // console.log("publicBytes=>", publicBytes);
+    const bits5 = convertBits(subBts, 8, 5);
+    // console.log(bits5);
+    const encoded = Bech32Lib.bech32.encode('npub', bits5);
+    // console.log(encoded);
+    return encoded;
 }
 
 function castToEcKey(secretKey) {
@@ -257,4 +258,32 @@ function decryptMnemonic(encryptedData, password) {
     const decrypted = CryptoLib.AES.decrypt(encryptedData.cipherTxt, key, {iv: iv});
 
     return decrypted.toString(CryptoLib.enc.Utf8);
+}
+
+function convertBits(data, fromBits, toBits, pad = true) {
+    let acc = 0;
+    let bits = 0;
+    const result = [];
+    const maxv = (1 << toBits) - 1;
+
+    for (let value of data) {
+        if (value < 0 || value >> fromBits !== 0) {
+            throw new Error('Invalid value for convertBits');
+        }
+        acc = (acc << fromBits) | value;
+        bits += fromBits;
+        while (bits >= toBits) {
+            bits -= toBits;
+            result.push((acc >> bits) & maxv);
+        }
+    }
+    if (pad) {
+        if (bits > 0) {
+            result.push((acc << (toBits - bits)) & maxv);
+        }
+    } else if (bits >= fromBits || ((acc << (toBits - bits)) & maxv)) {
+        throw new Error('Invalid data for convertBits');
+    }
+
+    return result;
 }
