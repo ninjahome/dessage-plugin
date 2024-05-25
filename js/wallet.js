@@ -34,13 +34,17 @@ class Wallet {
     }
 
     decryptKey(pwd) {
-        const decryptedPri = decryptMnemonic(this.cipherTxt, pwd);
+        const decryptedPri = decryptAes(this.cipherTxt, pwd);
         const priArray = hexStringToByteArray(decryptedPri);
         const key = new ProtocolKey(priArray);
         if (this.address !== key.NinjaAddr) {
-            throw new Error("address and private key are not match");
+            throw new Error("Incorrect password");
         }
         this.key = key;
+    }
+
+    decryptMnemonic(pwd) {
+        return decryptAes(this.mnemonic, pwd);
     }
 }
 
@@ -74,8 +78,8 @@ function NewWallet(mnemonic, password) {
     const key = new ProtocolKey(pri);
     const addr = key.NinjaAddr;
 
-    const cipherTxt = encryptMnemonic(pri.toString('hex'), password);
-    const em = encryptMnemonic(mnemonic, password);
+    const cipherTxt = encryptAes(pri.toString('hex'), password);
+    const em = encryptAes(mnemonic, password);
 
     console.log('Encrypted pri:', cipherTxt);
     console.log('Encrypted mnemonic:', em);
@@ -231,15 +235,15 @@ function testPeerToPeerCrypto(msg) {
     // console.log(nacl.util.encodeUTF8(decryptedMessage));
 }
 
-// 定义 encryptMnemonic 和 decryptMnemonic 函数
-function encryptMnemonic(mnemonic, password) {
+// 定义 encryptAes 和 decryptAes 函数
+function encryptAes(plainTxt, password) {
     const salt = CryptoLib.lib.WordArray.random(128 / 8);
     const key = CryptoLib.PBKDF2(password, salt, {
         keySize: 256 / 32,
         iterations: 1000
     });
     const iv = CryptoLib.lib.WordArray.random(128 / 8);
-    const encrypted = CryptoLib.AES.encrypt(mnemonic, key, {iv: iv});
+    const encrypted = CryptoLib.AES.encrypt(plainTxt, key, {iv: iv});
 
     return {
         cipherTxt: encrypted.toString(),
@@ -248,7 +252,7 @@ function encryptMnemonic(mnemonic, password) {
     };
 }
 
-function decryptMnemonic(encryptedData, password) {
+function decryptAes(encryptedData, password) {
     const salt = CryptoLib.enc.Hex.parse(encryptedData.salt);
     const iv = CryptoLib.enc.Hex.parse(encryptedData.iv);
     const key = CryptoLib.PBKDF2(password, salt, {

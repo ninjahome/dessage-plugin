@@ -6,27 +6,29 @@
     <link rel="stylesheet" href="/file/main.css">
 </head>
 <body>
-<div class="login-container">
+<div class="login-container view">
     <div class="login-header">
         <img src="/file/logo_48.png" alt="Dessage Logo" class="logo">
     </div>
     <div class="login-body">
         <h1>Welcome back!</h1>
         <p>The decentralized web awaits</p>
-        <form>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="login-password" name="password" required>
-            </div>
-            <button type="submit" class="primary-button">Unlock</button>
-            <a href="#" class="forgot-password">Forgot password?</a>
-        </form>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="login-password" name="password" required>
+            <span class="login-error"></span>
+        </div>
+        <button type="button" class="primary-button">Unlock</button>
+        <a href="#" class="forgot-password">Forgot password?</a>
     </div>
     <div class="login-footer">
         <p>Need help? Contact <a href="#">Dessage support</a></p>
     </div>
 </div>
 
+<div id="view-dashboard" class="main-dashboard view">
+
+</div>
 
 <script src="/js/bip39.browser.js"></script>
 <script src="/js/wallet.js"></script>

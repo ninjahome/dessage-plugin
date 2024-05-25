@@ -1,32 +1,42 @@
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
-let __walletList = null;
 
 async function initDessagePlugin() {
     await initDatabase();
+    initLoginDiv();
+    queryStatus();
+}
 
-    const wallets = await loadLocalWallet();
-    console.log("all wallets:=>", wallets);
-    if (!wallets || wallets.length === 0) {
-        chrome.tabs.create({
-            url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
-        });
-    }
-    __walletList = wallets;
+function queryStatus() {
+    const request = {action: 'currentStatus'};
+    chrome.runtime.sendMessage(request, response => {
+        console.log(response);
+        if (response.status === 'success') {
+            console.log('Wallet unlocked');
+        }
+    });
+}
+
+function initLoginDiv() {
+    document.querySelector(".login-container .primary-button").addEventListener('click', openAllWallets);
 }
 
 function openAllWallets() {
-    if (!__walletList || __walletList.length === 0) {
-        chrome.tabs.create({
-            url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
-        });
-        return;
-    }
+    chrome.runtime.sendMessage({action: 'unlockWallet', password}, response => {
+        if (response.status === 'success') {
+            console.log('Wallet unlocked');
+        }
+    });
 
-    const pwd = document.querySelector(".login-container input").value;
-
-    __walletList.forEach(wallet => {
-        wallet.decryptKey(pwd);
-    })
+    const password = document.querySelector(".login-container input").value;
+    chrome.runtime.sendMessage({action: 'unlockWallet', password}, response => {
+        if (response.status === 'success') {
+            console.log('Wallet unlocked');
+            showView('#onboarding/dashboard');
+            return;
+        }
+        const errTips = document.querySelector(".login-container .login-error");
+        errTips.innerText = response.status;
+    });
 }
 
 async function testRemoveAllWallet() {
