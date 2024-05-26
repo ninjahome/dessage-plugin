@@ -1,4 +1,6 @@
-async function loadLocalWallet() {
+import {__tableNameWallet, databaseAddItem, databaseQueryAll} from "./database.js";
+
+export async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {
         return null;
@@ -13,7 +15,7 @@ async function loadLocalWallet() {
     return walletObj;
 }
 
-class Wallet {
+export class Wallet {
     constructor(uuid, addr, cipherTxt, mnemonic, key) {
         this.uuid = uuid;
         this.address = addr;
@@ -22,7 +24,7 @@ class Wallet {
         this.key = key;
     }
 
-    async syncToDb() {
+     async syncToDb() {
         const item = {
             uuid: this.uuid,
             address: this.address,
@@ -33,7 +35,7 @@ class Wallet {
         console.log("save wallet result=>", result);
     }
 
-    decryptKey(pwd) {
+     decryptKey(pwd) {
         const decryptedPri = decryptAes(this.cipherTxt, pwd);
         const priArray = hexStringToByteArray(decryptedPri);
         const key = new ProtocolKey(priArray);
@@ -68,7 +70,7 @@ function wordArrayToByteArray(wordArray) {
 }
 
 
-function NewWallet(mnemonic, password) {
+export function NewWallet(mnemonic, password) {
 
     const uuid = generateUUID();
 

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/file/main.css">
 </head>
 <body>
-<div class="login-container view">
+<div class="login-container view" id="view-unlock-plugin">
     <div class="login-header">
         <img src="/file/logo_48.png" alt="Dessage Logo" class="logo">
     </div>
@@ -31,15 +31,17 @@
 </div>
 
 <script src="/js/bip39.browser.js"></script>
-<script src="/js/wallet.js"></script>
-<script src="/js/database.js"></script>
 <script src="/js/elliptic.bundle.js"></script>
 <script src="/js/base58.js"></script>
 <script src="/js/tweetnacl.bundle.js"></script>
 <script src="/js/crypto.bundle.js"></script>
 <script src="/js/ethereumjs-util.bundle.js"></script>
 <script src="/js/bech32.bundle.js"></script>
-<script src="/js/common.js"></script>
-<script src="/js/main.js"></script>
+
+
+<script type="module" src="/js/util.js"></script>
+<script type="module" src="/js/database.js"></script>
+<script type="module" src="/js/wallet.js"></script>
+<script type="module" src="/js/main.js"></script>
 </body>
 </html>

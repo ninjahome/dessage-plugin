@@ -1,3 +1,7 @@
+import {initDatabase} from './database.js';
+import {loadLocalWallet, NewWallet} from "./wallet.js";
+import {showView} from "./util.js";
+
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
 let ___mnemonic_in_mem = null;
@@ -16,9 +20,6 @@ function initWelcomeDiv() {
 
     const importButton = document.getElementById('welcome-import');
     importButton.addEventListener('click', importWallet);
-
-    const priArray = hexStringToByteArray('9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60');
-    const key = new ProtocolKey(priArray);
 }
 
 function initPasswordDiv() {
@@ -83,17 +84,17 @@ async function initWelcomePage() {
     initImportPasswordDiv();
 
     window.addEventListener('hashchange', function () {
-        showView(window.location.hash);
+        showView(window.location.hash, router);
     });
 
-    showView(window.location.hash || '#onboarding/welcome');
+    showView(window.location.hash || '#onboarding/welcome', router);
 
     window.navigateTo = navigateTo;
 }
 
 function navigateTo(hash) {
     history.pushState(null, null, hash);
-    showView(hash);
+    showView(hash, router);
 }
 
 async function createWallet() {
@@ -408,4 +409,20 @@ function prepareAccountData() {
     loadLocalWallet().then(ws => {
         console.log("all wallets:=>", ws);
     });
+}
+
+
+function router(path) {
+    if (path === '#onboarding/recovery-phrase') {
+        displayMnemonic();
+    }
+    if (path === '#onboarding/confirm-recovery') {
+        displayConfirmVal();
+    }
+    if (path === '#onboarding/import-wallet') {
+        generateRecoveryPhraseInputs();
+    }
+    if (path === '#onboarding/account-home') {
+        prepareAccountData();
+    }
 }
