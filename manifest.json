@@ -19,6 +19,7 @@
   "permissions": [
     "storage",
     "activeTab",
+    "alarms",
     "tabs"
   ],
   "background": {
@@ -32,6 +33,6 @@
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src 'none'; base-uri 'self'"
   }
 }

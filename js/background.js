@@ -11,6 +11,9 @@ importScripts('wallet.js');
 
 let __walletList = null;
 let __walletStatus = WalletStatus.Init;
+let __lastInterActTime = Date.now() ;
+const __timeOut = 6 * 60 * 60 * 1000;
+const __alarmName = 'keepActive';
 
 chrome.runtime.onInstalled.addListener((details) => {
     console.log("onInstalled event triggered");
@@ -18,11 +21,38 @@ chrome.runtime.onInstalled.addListener((details) => {
         chrome.tabs.create({
             url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
         });
+        return;
+    }
+    chrome.alarms.create(__alarmName, { periodInMinutes: 10 });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+    chrome.alarms.create(__alarmName, { periodInMinutes: 10 });
+});
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === __alarmName) {
+        console.log('Alarm triggered to keep the service worker active.');
+        if(__lastInterActTime + __timeOut > Date.now()){
+            return;
+        }
+        clearKeepActiveAlarm();
     }
 });
 
+function clearKeepActiveAlarm() {
+    chrome.alarms.clear(__alarmName, (wasCleared) => {
+        if (wasCleared) {
+            console.log('keepActive alarm has been cleared.');
+        } else {
+            console.log('Failed to clear keepActive alarm or it does not exist.');
+        }
+    });
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("action :=>", request.action);
+    __lastInterActTime = Date.now();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(r => {

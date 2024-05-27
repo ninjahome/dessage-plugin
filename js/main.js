@@ -1,5 +1,7 @@
-document.addEventListener("DOMContentLoaded", initDessagePlugin);
+let __currentWallet = null;
 
+
+document.addEventListener("DOMContentLoaded", initDessagePlugin);
 async function initDessagePlugin() {
     initLoginDiv();
     // await testRemoveAllWallet();
