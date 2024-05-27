@@ -1,19 +1,28 @@
-  async function loadLocalWallet() {
+class DbWallet {
+    constructor(uuid, address, cipherTxt, mnemonic) {
+        this.uuid = uuid;
+        this.address = address;
+        this.cipherTxt = cipherTxt;
+        this.mnemonic = mnemonic;
+    }
+}
+
+async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {
         return null;
     }
     let walletObj = [];
     for (let i = 0; i < wallets.length; i++) {
-        const walletStr = wallets[i];
-        const wallet = new Wallet(walletStr.uuid, walletStr.address, walletStr.cipherTxt, walletStr.mnemonic)
+        const dbWallet = wallets[i];
+        const wallet = new Wallet(dbWallet.uuid, dbWallet.address, dbWallet.cipherTxt, dbWallet.mnemonic)
         console.log("load wallet success:=>", wallet.address);
         walletObj.push(wallet);
     }
     return walletObj;
 }
 
-  class Wallet {
+class Wallet {
     constructor(uuid, addr, cipherTxt, mnemonic, key) {
         this.uuid = uuid;
         this.address = addr;
@@ -23,12 +32,7 @@
     }
 
     async syncToDb() {
-        const item = {
-            uuid: this.uuid,
-            address: this.address,
-            cipherTxt: this.cipherTxt,
-            mnemonic: this.mnemonic,
-        }
+        const item = new DbWallet(  this.uuid,  this.address, this.cipherTxt, this.mnemonic)
         const result = await databaseAddItem(__tableNameWallet, item);
         console.log("save wallet result=>", result);
     }
@@ -72,7 +76,7 @@ function wordArrayToByteArray(wordArray) {
 }
 
 
-  function NewWallet(mnemonic, password) {
+function NewWallet(mnemonic, password) {
 
     const uuid = generateUUID();
 
@@ -95,16 +99,16 @@ class ProtocolKey {
     constructor(pri) {
 
         const ninjaKey = castToNinjaKey(pri);
-        const ecPriKey = castToEcKey(pri);
+        const ecKey = castToEcKey(pri);
         this.NinjaKey = ninjaKey;
-        this.ECPri = ecPriKey;
+        //EcKey.getPrivate is btc private key
+        this.ECKey = ecKey;
 
         this.NinjaAddr = getNinjaAddress(ninjaKey);
-
-        this.EthAddr = generateEthAddress(ecPriKey);
-        this.BtcAddr = generateBtcAddress(ecPriKey);
-        this.BtcTestAddr = generateBtcAddress(ecPriKey, true);
-        this.NostrAddr = generateNostrAddress(ecPriKey);
+        this.EthAddr = generateEthAddress(ecKey);
+        this.BtcAddr = generateBtcAddress(ecKey);
+        this.BtcTestAddr = generateBtcAddress(ecKey, true);
+        this.NostrAddr = generateNostrAddress(ecKey);
         console.log("new key:[ninja addr:", this.NinjaAddr,
             "] [eth addr:", this.EthAddr, "]",
             "] [btc addr:", this.BtcAddr, "]",
@@ -169,26 +173,23 @@ function generateNostrAddress(ecPriKey) {
 function castToEcKey(secretKey) {
     const EC = elliptic;
     const curve = new EC('secp256k1');
-    const ecPriKey = curve.keyFromPrivate(secretKey);
-
-    // const privateKeyHex = ecPriKey.getPrivate('hex');
-    // console.log('Private Key:', privateKeyHex);
+    const ecKey = curve.keyFromPrivate(secretKey);
 
     // The privateKey.D must < N
-    if (ecPriKey.getPrivate().gte(curve.n)) {
+    if (ecKey.getPrivate().gte(curve.n)) {
         throw new Error('Invalid private key, >=N');
     }
 
     // The privateKey.D must not be zero or negative.
-    if (ecPriKey.getPrivate() <= 0n) {
+    if (ecKey.getPrivate() <= 0n) {
         throw new Error('Invalid private key, zero or negative');
     }
 
-    ecPriKey.getPublic();
-    if (!ecPriKey.pub) {
+    ecKey.getPublic();
+    if (!ecKey.pub) {
         throw new Error('Invalid private key');
     }
-    return ecPriKey;
+    return ecKey;
 }
 
 function castToNinjaKey(seed) {

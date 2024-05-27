@@ -2,10 +2,20 @@ let __currentWallet = null;
 
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
+
 async function initDessagePlugin() {
     initLoginDiv();
     // await testRemoveAllWallet();
     pluginClicked();
+    testKey();
+}
+
+function testKey() {
+    const priArray = hexStringToByteArray("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60");
+    const key = new ProtocolKey(priArray);
+    const privateKeyHex = key.ECKey.getPrivate('hex');
+    console.log(priArray, 'Private Key(ethereum or btc):',
+        privateKeyHex, "btc address:", key.BtcAddr,"eth address",key.EthAddr);
 }
 
 function pluginClicked() {
@@ -16,7 +26,7 @@ function pluginClicked() {
             console.error('Error: Response is undefined or null.');
             return;
         }
-        console.log("response=>",JSON.stringify(response));
+        console.log("response=>", JSON.stringify(response));
 
         switch (response.status) {
             case WalletStatus.NoWallet:
@@ -45,7 +55,7 @@ function initLoginDiv() {
 function openAllWallets() {
 
     const password = document.querySelector(".login-container input").value;
-    chrome.runtime.sendMessage({action: MsgType.WalletOpen, password:password}, response => {
+    chrome.runtime.sendMessage({action: MsgType.WalletOpen, password: password}, response => {
         if (response.status) {
             console.log('Wallet unlocked');
             showView('#onboarding/dashboard', router);

@@ -17,7 +17,25 @@ import (
 )
 
 func main() {
-	test4()
+	test5()
+}
+
+func test5() {
+	//var priKey, _ = crypto.HexToECDSA("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
+	pkBytes, _ := hex.DecodeString("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60")
+
+	btcPrivateKey, btcPublicKey := btcec.PrivKeyFromBytes(pkBytes)
+	btcAddress, _ := btcutil.NewAddressPubKey(btcPublicKey.SerializeCompressed(), &chaincfg.MainNetParams)
+
+	ethPri := crypto.ToECDSAUnsafe(pkBytes)
+	ethAddress := crypto.PubkeyToAddress(ethPri.PublicKey)
+
+	fmt.Println("Bitcoin Private Key:",
+		hex.EncodeToString(btcPrivateKey.Serialize()),
+		btcPrivateKey.Serialize(),
+		"public addr:", btcAddress.EncodeAddress(),
+		"eth addr:", ethAddress.Hex(),
+		"eth pri:", hex.EncodeToString(crypto.FromECDSA(ethPri)))
 }
 
 func test4() {
