@@ -1,8 +1,9 @@
 import {loadLocalWallet} from "./wallet.js";
 import {initDatabase} from "./database.js";
+import {MsgType, WalletStatus} from "./util";
 
 let __walletList = null;
-let __initialized = 0;
+let __walletStatus = WalletStatus.Init;
 
 chrome.runtime.onInstalled.addListener((details) => {
     console.log("onInstalled event triggered");
@@ -13,52 +14,62 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
 });
 
-chrome.runtime.onMessage.addListener( (request, sender, sendResponse) => {
-    if (request.action === 'openPlugin') {
-        pluginClicked(sendResponse).catch(error => {
-            console.error('Error in pluginClicked:', error);
-            sendResponse({status: 'error', message: error.toString()});
-        });
-        return true; // Keep the message channel open for async response
-    } else if (request.action === 'unlockWallet') {
-        openWallet(request.password, sendResponse);
-        return true; // Keep the message channel open for async response
-    } else {
-        sendResponse({status: 'unknown action'});
-        return false; // Close the message channel for non-async response
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    console.log("action :=>", request.action);
+    switch (request.action) {
+        case MsgType.PluginClicked:
+            pluginClicked(sendResponse).then(r => {
+            });
+            return true;
+        case MsgType.WalletOpen:
+            openWallet(sendResponse).then(r => {
+            });
+            return true;
+        case MsgType.WalletClose:
+            closeWallet().then(r => {
+            });
+            return true;
+        default:
+            sendResponse({status: 'unknown action'});
+            return false;
     }
 });
 
-async function pluginClicked() {
-    switch (__initialized) {
-        case 0:
+async function pluginClicked(sendResponse) {
+    try {
+        if (__walletStatus === WalletStatus.Init) {
             await initDatabase();
             const wallets = await loadLocalWallet();
+            console.log("wallet length=>", wallets.length);
             if (!wallets || wallets.length === 0) {
-                return 'noWallet';
+                __walletStatus = WalletStatus.NoWallet;
+            } else {
+                __walletList = wallets;
+                __walletStatus = WalletStatus.Locked;
             }
-            __walletList = wallets;
-            __initialized = 1;
-            return 'locked';
-        case 1:
-            return 'locked';
-        case 2:
-            return 'unlocked';
-        case 3:
-            return 'expired';
-        default:
-            return 'unknown';
+        }
+        sendResponse({status: __walletStatus});
+    } catch (error) {
+        console.error('Error in pluginClicked:', error);
+        sendResponse({status: WalletStatus.Error, message: error.toString()});
     }
 }
 
-
-function openWallet(pwd, sendResponse) {
+async function openWallet(pwd, sendResponse) {
     try {
         __walletList.forEach(wallet => {
             wallet.decryptKey(pwd);
         })
-        sendResponse({status: 'success'});
-    } catch (err) {
-        sendResponse({status: 'failed', error: err.toString()});
+        sendResponse({status: true, message: 'success'});
+    } catch (error) {
+        console.error('Error in open wallet:', error);
+        sendResponse({status: false, message: error.toString()});
     }
+}
+
+async function closeWallet(sendResponse) {
+    __walletList.forEach(wallet => {
+        wallet.closeKey();
+    })
+    sendResponse({status: true, message: 'success'});
 }

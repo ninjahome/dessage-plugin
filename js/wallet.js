@@ -24,7 +24,7 @@ export class Wallet {
         this.key = key;
     }
 
-     async syncToDb() {
+    async syncToDb() {
         const item = {
             uuid: this.uuid,
             address: this.address,
@@ -35,7 +35,7 @@ export class Wallet {
         console.log("save wallet result=>", result);
     }
 
-     decryptKey(pwd) {
+    decryptKey(pwd) {
         const decryptedPri = decryptAes(this.cipherTxt, pwd);
         const priArray = hexStringToByteArray(decryptedPri);
         const key = new ProtocolKey(priArray);
@@ -47,6 +47,10 @@ export class Wallet {
 
     decryptMnemonic(pwd) {
         return decryptAes(this.mnemonic, pwd);
+    }
+
+    closeKey() {
+        this.key = null;
     }
 }
 

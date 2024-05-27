@@ -13,12 +13,14 @@
     <div class="login-body">
         <h1>Welcome back!</h1>
         <p>The decentralized web awaits</p>
-        <div class="input-group">
-            <label for="password">Password</label>
-            <input type="password" id="login-password" name="password" required>
-            <span class="login-error"></span>
-        </div>
-        <button type="button" class="primary-button">Unlock</button>
+        <form>
+            <div class="input-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" name="password" required>
+                <span class="login-error"></span>
+            </div>
+            <button type="submit" class="primary-button">Unlock</button>
+        </form>
         <a href="#" class="forgot-password">Forgot password?</a>
     </div>
     <div class="login-footer">

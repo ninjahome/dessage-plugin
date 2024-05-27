@@ -10,3 +10,18 @@ export function showView(hash, callback) {
     }
     callback(hash);
 }
+
+export const WalletStatus = Object.freeze({
+    Init: 'Init',
+    NoWallet: 'NoWallet',
+    Locked: 'Locked',
+    Unlocked: 'Unlocked',
+    Expired: 'Expired',
+    Error:'error'
+});
+
+export const MsgType = Object.freeze({
+    PluginClicked:'PluginClicked',
+    WalletOpen:'WalletOpen',
+    WalletClose:'WalletClose',
+});

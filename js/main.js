@@ -1,37 +1,39 @@
-import {__tableNameWallet, databaseDeleteByFilter} from "./database.js";
-import {showView} from "./util.js";
+import {__tableNameWallet, databaseDeleteByFilter, initDatabase} from "./database.js";
+import {showView, WalletStatus} from "./util.js";
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
 async function initDessagePlugin() {
     initLoginDiv();
+    // await testRemoveAllWallet();
     pluginClicked();
 }
 
 function pluginClicked() {
     const request = {action: 'openPlugin'};
     chrome.runtime.sendMessage(request, response => {
+        console.log("request=>", JSON.stringify(request));
         if (!response) {
             console.error('Error: Response is undefined or null.');
             return;
         }
         console.log(JSON.stringify(response));
-        console.log(response.status);
-        if (response.status === 'noWallet') {
-            chrome.tabs.create({
-                url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
-            });
-            return;
-        }
-
-        if (response.status === 'locked' || response.status === 'expired') {
-            showView('#onboarding/unlock-plugin', router);
-            return;
-        }
-
-        if (response.status === 'unlocked') {
-            showView('#onboarding/dashboard', router);
-            return;
+        switch (response.status) {
+            case WalletStatus.NoWallet:
+                chrome.tabs.create({
+                    url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
+                });
+                return;
+            case WalletStatus.Locked:
+            case WalletStatus.Expired:
+                showView('#onboarding/unlock-plugin', router);
+                return;
+            case WalletStatus.Unlocked:
+                showView('#onboarding/dashboard', router);
+                return;
+            case WalletStatus.Error:
+                alert("error:" + response.message);
+                return;
         }
     });
 }
@@ -54,13 +56,6 @@ function openAllWallets() {
     });
 }
 
-async function testRemoveAllWallet() {
-    await databaseDeleteByFilter(__tableNameWallet, (val) => {
-        console.log("delete all");
-        return true;
-    })
-}
-
 function router(path) {
     if (path === '#onboarding/recovery-phrase') {
     }
@@ -70,4 +65,12 @@ function router(path) {
     }
     if (path === '#onboarding/account-home') {
     }
+}
+
+async function testRemoveAllWallet() {
+    await initDatabase();
+    await databaseDeleteByFilter(__tableNameWallet, (val) => {
+        console.log("delete all");
+        return true;
+    })
 }
