@@ -1,6 +1,9 @@
-import {loadLocalWallet} from "./wallet.js";
-import {initDatabase} from "./database.js";
-import {MsgType, WalletStatus} from "./util.js";
+// import {loadLocalWallet} from "./wallet.js";
+// import {initDatabase} from "./database.js";
+// import {MsgType, WalletStatus} from "./util.js";
+importScripts('database.js');
+importScripts('util.js');
+importScripts('wallet.js');
 
 let __walletList = null;
 let __walletStatus = WalletStatus.Init;
@@ -28,6 +31,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case MsgType.WalletClose:
             closeWallet().then(r => {
             });
+            return true;
+        case MsgType.WalletCreated:
+            __walletStatus = WalletStatus.Init;
+            sendResponse({status: 'success'})
             return true;
         default:
             sendResponse({status: 'unknown action'});

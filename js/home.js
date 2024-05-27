@@ -1,7 +1,3 @@
-import {initDatabase} from './database.js';
-import {loadLocalWallet, NewWallet} from "./wallet.js";
-import {MsgType, showView} from "./util.js";
-
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
 let ___mnemonic_in_mem = null;
@@ -118,6 +114,7 @@ async function createWallet() {
 
     const wallet = NewWallet(mnemonic, password1);
     await wallet.syncToDb();
+    chrome.runtime.sendMessage({action: MsgType.WalletCreated}, response => {});
 }
 
 function importWallet() {
@@ -368,6 +365,7 @@ async function actionOfWalletImport() {
     const password = document.getElementById("imported-new-password").value;
     const wallet = NewWallet(___mnemonic_in_mem, password);
     await wallet.syncToDb();
+    chrome.runtime.sendMessage({action: MsgType.WalletCreated}, response => {});
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);
     navigateTo('#onboarding/account-home');

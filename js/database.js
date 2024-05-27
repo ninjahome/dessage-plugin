@@ -1,9 +1,8 @@
-
 let __databaseObj;
 const __currentDatabaseVersion = 2;
-export const __tableNameWallet = '__table_wallet__';
+const __tableNameWallet = '__table_wallet__';
 
-export function initDatabase() {
+function initDatabase() {
     return new Promise((resolve, reject) => {
         const request = indexedDB.open('dessage-database', __currentDatabaseVersion);
 
@@ -30,14 +29,14 @@ export function initDatabase() {
     });
 }
 
-export function closeDatabase() {
+function closeDatabase() {
     if (__databaseObj) {
         __databaseObj.close();
         console.log("Database connection closed.");
     }
 }
 
-export function databaseAddItem(storeName, data) {
+function databaseAddItem(storeName, data) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
@@ -53,7 +52,7 @@ export function databaseAddItem(storeName, data) {
     });
 }
 
-export function databaseGetByIndex(storeName, idx, idxVal) {
+function databaseGetByIndex(storeName, idx, idxVal) {
     return new Promise((resolve, reject) => {
         try {
             const transaction = __databaseObj.transaction([storeName], 'readonly');
@@ -79,7 +78,7 @@ export function databaseGetByIndex(storeName, idx, idxVal) {
     });
 }
 
-export function databaseGetByID(storeName, id) {
+function databaseGetByID(storeName, id) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readonly');
         const objectStore = transaction.objectStore(storeName);
@@ -101,7 +100,7 @@ export function databaseGetByID(storeName, id) {
     });
 }
 
-export function databaseUpdate(storeName, id, newData) {
+function databaseUpdate(storeName, id, newData) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
@@ -118,7 +117,7 @@ export function databaseUpdate(storeName, id, newData) {
     });
 }
 
-export function databaseAddOrUpdate(storeName, data) {
+function databaseAddOrUpdate(storeName, data) {
     const transaction = __databaseObj.transaction([storeName], 'readwrite');
     const objectStore = transaction.objectStore(storeName);
     const request = objectStore.put(data);
@@ -135,7 +134,7 @@ export function databaseAddOrUpdate(storeName, data) {
     });
 }
 
-export function databaseDelete(storeName, id) {
+function databaseDelete(storeName, id) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
@@ -151,7 +150,7 @@ export function databaseDelete(storeName, id) {
     });
 }
 
-export function databaseDeleteByFilter(storeName, conditionFn) {
+function databaseDeleteByFilter(storeName, conditionFn) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readwrite');
         const objectStore = transaction.objectStore(storeName);
@@ -175,7 +174,7 @@ export function databaseDeleteByFilter(storeName, conditionFn) {
     });
 }
 
-export function databaseQueryAll(storeName) {
+function databaseQueryAll(storeName) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readonly');
         const objectStore = transaction.objectStore(storeName);
@@ -192,7 +191,7 @@ export function databaseQueryAll(storeName) {
     });
 }
 
-export function databaseQueryByFilter(storeName, conditionFn) {
+function databaseQueryByFilter(storeName, conditionFn) {
     return new Promise((resolve, reject) => {
         const transaction = __databaseObj.transaction([storeName], 'readonly');
         const objectStore = transaction.objectStore(storeName);
@@ -218,7 +217,7 @@ export function databaseQueryByFilter(storeName, conditionFn) {
     });
 }
 
-export function databaseCleanByFilter(storeName, newData, conditionFn) {
+function databaseCleanByFilter(storeName, newData, conditionFn) {
     const clearAndFillTransaction = __databaseObj.transaction([storeName], 'readwrite');
     const objectStore = clearAndFillTransaction.objectStore(storeName);
     const clearRequest = objectStore.openCursor();
@@ -260,7 +259,7 @@ export function databaseCleanByFilter(storeName, newData, conditionFn) {
     };
 }
 
-export function databaseDeleteTable(tableName) {
+function databaseDeleteTable(tableName) {
     if (__databaseObj.objectStoreNames.contains(tableName)) {
         __databaseObj.deleteObjectStore(tableName);
         console.log("Object store " + tableName + " deleted");

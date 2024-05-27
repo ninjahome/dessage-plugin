@@ -1,5 +1,4 @@
-import {__tableNameWallet, databaseAddItem, databaseQueryAll} from "./database.js";
-export async function loadLocalWallet() {
+  async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {
         return null;
@@ -14,7 +13,7 @@ export async function loadLocalWallet() {
     return walletObj;
 }
 
-export class Wallet {
+  class Wallet {
     constructor(uuid, addr, cipherTxt, mnemonic, key) {
         this.uuid = uuid;
         this.address = addr;
@@ -73,7 +72,7 @@ function wordArrayToByteArray(wordArray) {
 }
 
 
-export function NewWallet(mnemonic, password) {
+  function NewWallet(mnemonic, password) {
 
     const uuid = generateUUID();
 

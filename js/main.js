@@ -1,6 +1,3 @@
-import {__tableNameWallet, databaseDeleteByFilter, initDatabase} from "./database.js";
-import {MsgType, showView, WalletStatus} from "./util.js";
-
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
 async function initDessagePlugin() {
