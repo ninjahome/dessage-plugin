@@ -37,8 +37,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             return true;
         case MsgType.WalletCreated:
-            __walletStatus = WalletStatus.Init;
-            sendResponse({status: 'success'})
+            createWallet(sendResponse).then(r => {
+            });
+
             return true;
         default:
             sendResponse({status: 'unknown action'});
@@ -66,6 +67,11 @@ async function pluginClicked(sendResponse) {
     }
 }
 
+async function createWallet(sendResponse) {
+    __walletStatus = WalletStatus.Init;
+    sendResponse({status: 'success'})
+}
+
 async function openWallet(pwd, sendResponse) {
     try {
         __walletList.forEach(wallet => {
@@ -76,7 +82,7 @@ async function openWallet(pwd, sendResponse) {
     } catch (error) {
         console.error('Error in open wallet:', error);
         let msg = error.toString();
-        if (msg.includes("Malformed")){
+        if (msg.includes("Malformed")) {
             msg = "invalid password";
         }
         sendResponse({status: false, message: msg});
