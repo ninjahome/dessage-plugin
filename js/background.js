@@ -3,6 +3,7 @@
 // import {MsgType, WalletStatus} from "./util.js";
 importScripts('database.js');
 importScripts('util.js');
+importScripts('crypto.bundle.js');
 importScripts('wallet.js');
 
 let __walletList = null;
