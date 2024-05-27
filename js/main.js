@@ -1,5 +1,5 @@
 import {__tableNameWallet, databaseDeleteByFilter, initDatabase} from "./database.js";
-import {showView, WalletStatus} from "./util.js";
+import {MsgType, showView, WalletStatus} from "./util.js";
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
@@ -10,14 +10,15 @@ async function initDessagePlugin() {
 }
 
 function pluginClicked() {
-    const request = {action: 'openPlugin'};
+    const request = {action: MsgType.PluginClicked};
     chrome.runtime.sendMessage(request, response => {
         console.log("request=>", JSON.stringify(request));
         if (!response) {
             console.error('Error: Response is undefined or null.');
             return;
         }
-        console.log(JSON.stringify(response));
+        console.log("response=>",JSON.stringify(response));
+
         switch (response.status) {
             case WalletStatus.NoWallet:
                 chrome.tabs.create({
@@ -45,7 +46,7 @@ function initLoginDiv() {
 function openAllWallets() {
 
     const password = document.querySelector(".login-container input").value;
-    chrome.runtime.sendMessage({action: 'unlockWallet', password}, response => {
+    chrome.runtime.sendMessage({action: MsgType.WalletOpen, password:password}, response => {
         if (response.status === 'success') {
             console.log('Wallet unlocked');
             showView('#onboarding/dashboard', router);

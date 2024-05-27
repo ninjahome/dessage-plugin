@@ -1,6 +1,6 @@
 import {loadLocalWallet} from "./wallet.js";
 import {initDatabase} from "./database.js";
-import {MsgType, WalletStatus} from "./util";
+import {MsgType, WalletStatus} from "./util.js";
 
 let __walletList = null;
 let __walletStatus = WalletStatus.Init;
@@ -22,7 +22,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             });
             return true;
         case MsgType.WalletOpen:
-            openWallet(sendResponse).then(r => {
+            openWallet(request.password, sendResponse).then(r => {
             });
             return true;
         case MsgType.WalletClose:

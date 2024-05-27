@@ -1,5 +1,4 @@
 import {__tableNameWallet, databaseAddItem, databaseQueryAll} from "./database.js";
-
 export async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {

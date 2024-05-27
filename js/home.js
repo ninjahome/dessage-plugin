@@ -1,6 +1,6 @@
 import {initDatabase} from './database.js';
 import {loadLocalWallet, NewWallet} from "./wallet.js";
-import {showView} from "./util.js";
+import {MsgType, showView} from "./util.js";
 
 document.addEventListener("DOMContentLoaded", initWelcomePage);
 let __key_for_mnemonic_temp = '__key_for_mnemonic_temp__';
