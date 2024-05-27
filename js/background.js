@@ -68,10 +68,15 @@ async function openWallet(pwd, sendResponse) {
         __walletList.forEach(wallet => {
             wallet.decryptKey(pwd);
         })
+        __walletStatus = WalletStatus.Unlocked;
         sendResponse({status: true, message: 'success'});
     } catch (error) {
         console.error('Error in open wallet:', error);
-        sendResponse({status: false, message: error.toString()});
+        let msg = error.toString();
+        if (msg.includes("Malformed")){
+            msg = "invalid password";
+        }
+        sendResponse({status: false, message: msg});
     }
 }
 
@@ -79,5 +84,6 @@ async function closeWallet(sendResponse) {
     __walletList.forEach(wallet => {
         wallet.closeKey();
     })
+    __walletStatus = WalletStatus.Locked;
     sendResponse({status: true, message: 'success'});
 }

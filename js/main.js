@@ -44,13 +44,13 @@ function openAllWallets() {
 
     const password = document.querySelector(".login-container input").value;
     chrome.runtime.sendMessage({action: MsgType.WalletOpen, password:password}, response => {
-        if (response.status === 'success') {
+        if (response.status) {
             console.log('Wallet unlocked');
             showView('#onboarding/dashboard', router);
             return;
         }
         const errTips = document.querySelector(".login-container .login-error");
-        errTips.innerText = response.status;
+        errTips.innerText = response.message;
     });
 }
 
