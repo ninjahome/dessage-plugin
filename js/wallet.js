@@ -85,8 +85,8 @@ function wordArrayToByteArray(wordArray) {
     const cipherTxt = encryptAes(pri.toString('hex'), password);
     const em = encryptAes(mnemonic, password);
 
-    console.log('Encrypted pri:', cipherTxt);
-    console.log('Encrypted mnemonic:', em);
+    // console.log('Encrypted pri:', cipherTxt);
+    // console.log('Encrypted mnemonic:', em);
 
     return new Wallet(uuid, addr, cipherTxt, em, key);
 }

@@ -1,9 +1,12 @@
-// import {loadLocalWallet} from "./wallet.js";
-// import {initDatabase} from "./database.js";
-// import {MsgType, WalletStatus} from "./util.js";
 importScripts('database.js');
 importScripts('util.js');
 importScripts('crypto.bundle.js');
+importScripts('tweetnacl.bundle.js');
+importScripts('base58.js');
+importScripts('elliptic.bundle.js');
+importScripts('bip39.browser.js');
+importScripts('bech32.bundle.js');
+importScripts('ethereumjs-util.bundle.js');
 importScripts('wallet.js');
 
 let __walletList = null;
