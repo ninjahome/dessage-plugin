@@ -103,7 +103,7 @@ class ProtocolKey {
         this.NinjaKey = ninjaKey;
         //EcKey.getPrivate is btc private key
         this.ECKey = ecKey;
-
+        this.NostrPri = castToNostrPri(ecKey);
         this.NinjaAddr = getNinjaAddress(ninjaKey);
         this.EthAddr = generateEthAddress(ecKey);
         this.BtcAddr = generateBtcAddress(ecKey);
@@ -196,6 +196,15 @@ function castToNinjaKey(seed) {
     // console.log("Public Key:", keyPair.publicKey);
     // console.log("Secret Key:", keyPair.secretKey);
     return nacl.box.keyPair.fromSecretKey(seed);
+}
+
+function castToNostrPri(ecKey){
+    const ecPriKey = ecKey.getPrivate('hex');
+    const publicBytes = hexStringToByteArray(ecPriKey);
+    const bits5 = convertBits(publicBytes, 8, 5);
+    const encoded = Bech32Lib.bech32.encode('nsec', bits5);
+    console.log('nostr pri key:',encoded);
+    return encoded;
 }
 
 const NinjaAddrLen = 32

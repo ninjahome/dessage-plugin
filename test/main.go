@@ -17,7 +17,7 @@ import (
 )
 
 func main() {
-	test5()
+	test4()
 }
 
 func test5() {
@@ -63,6 +63,15 @@ func test4() {
 		panic(err)
 	}
 	fmt.Println(npub)
+
+	//b, err := hex.DecodeString(privateKeyHex)
+	//if err != nil {
+	//	return "", fmt.Errorf("failed to decode private key hex: %w", err)
+	//}
+
+	bits5, _ = bech32.ConvertBits(b, 8, 5, true)
+	nsec, _ := bech32.Encode("nsec", bits5)
+	fmt.Println(nsec)
 }
 
 func test3() {
