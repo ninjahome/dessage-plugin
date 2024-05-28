@@ -1,12 +1,3 @@
-class DbWallet {
-    constructor(uuid, address, cipherTxt, mnemonic) {
-        this.uuid = uuid;
-        this.address = address;
-        this.cipherTxt = cipherTxt;
-        this.mnemonic = mnemonic;
-    }
-}
-
 async function loadLocalWallet() {
     const wallets = await databaseQueryAll(__tableNameWallet)
     if (!wallets) {
@@ -22,6 +13,26 @@ async function loadLocalWallet() {
     return walletObj;
 }
 
+class OuterWallet {
+    constructor(address, btcAddr, ethAddr, nostrAddr, testBtcAddr) {
+        this.address = address;
+        this.btcAddr = btcAddr;
+        this.ethAddr = ethAddr;
+        this.nostrAddr = nostrAddr;
+        this.testBtcAddr = testBtcAddr;
+    }
+}
+
+class DbWallet {
+    constructor(uuid, address, cipherTxt, mnemonic) {
+        this.uuid = uuid;
+        this.address = address;
+        this.cipherTxt = cipherTxt;
+        this.mnemonic = mnemonic;
+    }
+}
+
+
 class Wallet {
     constructor(uuid, addr, cipherTxt, mnemonic, key) {
         this.uuid = uuid;
@@ -32,7 +43,7 @@ class Wallet {
     }
 
     async syncToDb() {
-        const item = new DbWallet(  this.uuid,  this.address, this.cipherTxt, this.mnemonic)
+        const item = new DbWallet(this.uuid, this.address, this.cipherTxt, this.mnemonic)
         const result = await databaseAddItem(__tableNameWallet, item);
         console.log("save wallet result=>", result);
     }
@@ -198,12 +209,12 @@ function castToNinjaKey(seed) {
     return nacl.box.keyPair.fromSecretKey(seed);
 }
 
-function castToNostrPri(ecKey){
+function castToNostrPri(ecKey) {
     const ecPriKey = ecKey.getPrivate('hex');
     const publicBytes = hexStringToByteArray(ecPriKey);
     const bits5 = convertBits(publicBytes, 8, 5);
     const encoded = Bech32Lib.bech32.encode('nsec', bits5);
-    console.log('nostr pri key:',encoded);
+    // console.log('nostr pri key:', encoded);
     return encoded;
 }
 

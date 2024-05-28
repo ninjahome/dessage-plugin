@@ -1,5 +1,5 @@
 let __currentWallet = null;
-
+let __walletList = null;
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
@@ -7,10 +7,11 @@ async function initDessagePlugin() {
     initLoginDiv();
     // await testRemoveAllWallet();
     pluginClicked();
-    testKey();
+    // testKey();
 }
 
-const { Buffer, Transaction } = EthereumTx;
+const {Buffer, Transaction} = EthereumTx;
+
 function testKey() {
     const priArray = hexStringToByteArray("9056dbc21a82398db5e16a5efb546c8335203dccda7ca42b6d53ba727f57db60");
     const key = new ProtocolKey(priArray);
@@ -22,7 +23,7 @@ function testKey() {
     const privateArr = hexStringToByteArray(privateKeyHex)
     const publicKey = key.ECKey.getPublic();
     const publicKeyBytes = publicKey.encode('array', false);
-    console.log("privateArr=>", privateArr, "\npublicKeyBytes",publicKeyBytes);
+    console.log("privateArr=>", privateArr, "\npublicKeyBytes", publicKeyBytes);
 
     const txParams = {
         nonce: '0x0', // 交易计数器
@@ -33,10 +34,10 @@ function testKey() {
         data: '0x', // 交易数据
     };
 
-    const tx = new Transaction(txParams, { chain: 'mainnet' });
+    const tx = new Transaction(txParams, {chain: 'mainnet'});
     const buffer = Buffer.from(privateKeyHex, 'hex');
     tx.sign(buffer);
-    console.log(tx.serialize()) ;
+    console.log(tx.serialize());
 }
 
 function pluginClicked() {
@@ -78,8 +79,9 @@ function openAllWallets() {
     const password = document.querySelector(".login-container input").value;
     chrome.runtime.sendMessage({action: MsgType.WalletOpen, password: password}, response => {
         if (response.status) {
-            console.log('Wallet unlocked');
             showView('#onboarding/dashboard', router);
+            __walletList = JSON.parse(response.message);
+            console.log("wallet unlocked======>>>:", response.message, __walletList);
             return;
         }
         const errTips = document.querySelector(".login-container .login-error");

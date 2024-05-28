@@ -11,10 +11,10 @@ importScripts('wallet.js');
 
 let __walletList = null;
 let __walletStatus = WalletStatus.Init;
-let __lastInterActTime = Date.now() ;
+let __lastInterActTime = Date.now();
 const __timeOut = 6 * 60 * 60 * 1000;
 const __alarmName = 'keepActive';
-
+const __alarmTimer = 5;
 chrome.runtime.onInstalled.addListener((details) => {
     console.log("onInstalled event triggered");
     if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
@@ -23,17 +23,17 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
         return;
     }
-    chrome.alarms.create(__alarmName, { periodInMinutes: 10 });
+    chrome.alarms.create(__alarmName, {periodInMinutes: __alarmTimer});
 });
 
 chrome.runtime.onStartup.addListener(() => {
-    chrome.alarms.create(__alarmName, { periodInMinutes: 10 });
+    chrome.alarms.create(__alarmName, {periodInMinutes: __alarmTimer});
 });
 
 chrome.alarms.onAlarm.addListener((alarm) => {
     if (alarm.name === __alarmName) {
         console.log('Alarm triggered to keep the service worker active.');
-        if(__lastInterActTime + __timeOut > Date.now()){
+        if (__lastInterActTime + __timeOut > Date.now()) {
             return;
         }
         clearKeepActiveAlarm();
@@ -104,11 +104,16 @@ async function createWallet(sendResponse) {
 
 async function openWallet(pwd, sendResponse) {
     try {
+        const wallets = []
         __walletList.forEach(wallet => {
             wallet.decryptKey(pwd);
+            const key = wallet.key;
+            const w = new OuterWallet(wallet.address, key.BtcAddr,
+                key.EthAddr, key.NostrAddr, key.BtcTestAddr);
+            wallets.push(w);
         })
         __walletStatus = WalletStatus.Unlocked;
-        sendResponse({status: true, message: 'success'});
+        sendResponse({status: true, message: JSON.stringify(wallets)});
     } catch (error) {
         console.error('Error in open wallet:', error);
         let msg = error.toString();
