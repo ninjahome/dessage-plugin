@@ -22,6 +22,10 @@
     "alarms",
     "tabs"
   ],
+  "host_permissions": [
+    "https://mainnet.infura.io/*",
+    "https://sepolia.infura.io/*"
+  ],
   "background": {
     "service_worker": "js/background.js"
   },

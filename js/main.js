@@ -1,10 +1,11 @@
 let __currentWallet = null;
-let __walletList = null;
+let __walletMap = new Map();
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
 async function initDessagePlugin() {
     initLoginDiv();
+    initDashBoard();
     // await testRemoveAllWallet();
     pluginClicked();
     // testKey();
@@ -61,6 +62,9 @@ function pluginClicked() {
                 showView('#onboarding/unlock-plugin', router);
                 return;
             case WalletStatus.Unlocked:
+                const obj = JSON.parse(response.message);
+                __walletMap = new Map(Object.entries(obj));
+                console.log("------------>>>", __walletMap.size, __walletMap instanceof Map);
                 showView('#onboarding/dashboard', router);
                 return;
             case WalletStatus.Error:
@@ -74,14 +78,23 @@ function initLoginDiv() {
     document.querySelector(".login-container .primary-button").addEventListener('click', openAllWallets);
 }
 
-function openAllWallets() {
+function initDashBoard() {
+    const selectElement = document.getElementById("wallet-dropdown");
+    selectElement.addEventListener('change', function (event) {
+        const selectedValue = event.target.value;
+        console.log('Selected value:', selectedValue);
+        fillWalletContent(selectedValue);
+    });
+}
 
+function openAllWallets() {
     const password = document.querySelector(".login-container input").value;
     chrome.runtime.sendMessage({action: MsgType.WalletOpen, password: password}, response => {
         if (response.status) {
+            const obj = JSON.parse(response.message);
+            __walletMap = new Map(Object.entries(obj));
             showView('#onboarding/dashboard', router);
-            __walletList = JSON.parse(response.message);
-            console.log("wallet unlocked======>>>:", response.message, __walletList);
+            console.log("------------>>>", response.message, obj, __walletMap.size, __walletMap instanceof Map);
             return;
         }
         const errTips = document.querySelector(".login-container .login-error");
@@ -90,7 +103,8 @@ function openAllWallets() {
 }
 
 function router(path) {
-    if (path === '#onboarding/recovery-phrase') {
+    if (path === '#onboarding/dashboard') {
+        fillWalletList();
     }
     if (path === '#onboarding/confirm-recovery') {
     }
@@ -105,5 +119,24 @@ async function testRemoveAllWallet() {
     await databaseDeleteByFilter(__tableNameWallet, (val) => {
         console.log("delete all");
         return true;
+
     })
+}
+
+function fillWalletList() {
+    const selectElement = document.getElementById("wallet-dropdown");
+    selectElement.innerHTML = '';
+    const option = document.getElementById("wallet-option-item");
+    __walletMap.forEach((wallet, addr) => {
+        const optionDiv = option.cloneNode(true);
+        optionDiv.style.display = 'block';
+        optionDiv.value = wallet.address;
+        optionDiv.textContent = wallet.address;
+        selectElement.appendChild(optionDiv);
+    });
+}
+
+function fillWalletContent(addr) {
+    const wallet = __walletMap.get(addr);
+    console.log("wallet data:=>", wallet.toString());
 }
