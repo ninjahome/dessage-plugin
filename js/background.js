@@ -9,67 +9,59 @@ importScripts('bech32.bundle.js');
 importScripts('ethereumjs-util.bundle.js');
 importScripts('wallet.js');
 
+let __walletList = null;
+let __walletStatus = WalletStatus.Init;
+let __lastInterActTime = Date.now();
+const __timeOut = 6 * 60 * 60 * 1000;
+const __alarmName = 'keepActive';
+let __outerWallets = new Map();
+const INFURA_PROJECT_ID = 'eced40c03c2a447887b73369aee4fbbe';
 
 self.addEventListener('install', (event) => {
     console.log('Service Worker installing...');
-    // 在安装时执行的逻辑
 });
 
 self.addEventListener('activate', (event) => {
     console.log('Service Worker activating...');
     event.waitUntil(clients.claim());
 });
+self.addEventListener('push', event => {
+    const data = event.data.json();
+    self.registration.showNotification(data.title, {
+        body: data.body,
+        icon: '/icon.png'
+    });
+});
 
-// self.addEventListener('fetch', (event) => {
-//     event.respondWith(
-//         caches.match(event.request).then((response) => {
-//             return response || fetch(event.request);
-//         })
-//     );
-// });
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(
+        clients.openWindow('https://your-url.com')
+    );
+});
+self.addEventListener('install', event => {
+});
 
+self.addEventListener('fetch', event => {
+});
 
-let __walletList = null;
-let __walletStatus = WalletStatus.Init;
-let __lastInterActTime = Date.now();
-const __timeOut = 6 * 60 * 60 * 1000;
-const __alarmName = 'keepActive';
-const __alarmTimer = 1;
-const __intervalTimer = 29 * 1000; // 每30秒触发一次 keepAlive
-let __outerWallets = new Map();
+self.addEventListener('sync', event => {
+});
 
-let keepAliveInterval = null;
-function startKeepAliveInterval() {
-    if (keepAliveInterval === null) {
-        keepAliveInterval = setInterval(keepAlive, __intervalTimer);
-    }
-}
-
-function clearKeepAliveInterval() {
-    if (keepAliveInterval !== null) {
-        clearInterval(keepAliveInterval);
-        keepAliveInterval = null;
-    }
-}
-
-function setKeepActiveAlarm() {
-    __lastInterActTime = Date.now();
-    chrome.alarms.create(__alarmName, {periodInMinutes: __alarmTimer}); // 每5分钟触发一次
-}
-function clearKeepActiveAlarm() {
-    chrome.alarms.clear(__alarmName, (wasCleared) => {
-        if (wasCleared) {
-            console.log('keepActive alarm has been cleared.');
-        } else {
-            console.log('Failed to clear keepActive alarm or it does not exist.');
+const ETH_ADDRESS = '0x2ba4E30628742E55e98E4a5253B510f5f2c60219';
+chrome.runtime.onConnect.addListener(function(port) {
+    console.assert(port.name === "keepAlive");
+    console.log("Connected to content script:", port);
+    port.onMessage.addListener(function(msg) {
+        console.log("Message received in background:", msg);
+        if (msg.action === "someAction") {
+            port.postMessage({ result: 'result' });
         }
     });
-}
+});
 
-const INFURA_PROJECT_ID = 'eced40c03c2a447887b73369aee4fbbe'; // 替换为你的 Infura 项目ID
-const ETH_ADDRESS = '0x2ba4E30628742E55e98E4a5253B510f5f2c60219'; // 替换为你想查询的以太坊地址
-
-function keepAlive() {
+function queryBalance() {
+    console.log('start to query eth balance');
     // fetch(`https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`, {
     fetch(`https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`, {
         method: 'POST',
@@ -107,34 +99,14 @@ chrome.runtime.onInstalled.addListener((details) => {
         });
         return;
     }
-    setKeepActiveAlarm();
-    startKeepAliveInterval();
 });
 
 chrome.runtime.onStartup.addListener(() => {
-    setKeepActiveAlarm();
-    startKeepAliveInterval();
+    console.log('Service Worker onStartup...');
 });
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === __alarmName) {
-        console.log('Alarm triggered to keep the service worker active.');
-        if (__lastInterActTime + __timeOut > Date.now()) {
-            console.log('Interaction within timeout period. Keeping active.');
-            setKeepActiveAlarm();
-            startKeepAliveInterval();
-            return;
-        }
-        clearKeepActiveAlarm();
-        clearKeepAliveInterval();
-    }
-});
-
-
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("action :=>", request.action);
-    setKeepActiveAlarm();
     switch (request.action) {
         case MsgType.PluginClicked:
             pluginClicked(sendResponse).then(r => {
@@ -151,7 +123,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         case MsgType.WalletCreated:
             createWallet(sendResponse).then(r => {
             });
-
+            return true;
+        case 'someAction':
+            queryBalance();
             return true;
         default:
             sendResponse({status: 'unknown action'});
