@@ -119,7 +119,6 @@ async function timerTaskWork(alarm) {
            await closeWallet();
         }
     }
-
 }
 
 const ETH_ADDRESS = '0x2ba4E30628742E55e98E4a5253B510f5f2c60219';
@@ -170,7 +169,9 @@ async function pluginClicked(sendResponse) {
         }
 
         if (walletStatus === WalletStatus.Unlocked) {
-            const outerWallet = await sessionGet(__key_wallet_map);
+            const sObj = await sessionGet(__key_wallet_map);
+            const outerWallet = new Map(sObj);
+            console.log("outerWallet",outerWallet);
             const obj = Object.fromEntries(outerWallet);
             msg = JSON.stringify(obj);
         }
@@ -203,7 +204,8 @@ async function openWallet(pwd, sendResponse) {
         })
 
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
-        await sessionSet(__key_wallet_map, outerWallet);
+        await sessionSet(__key_wallet_map, Array.from(outerWallet.entries()));
+        console.log("outerWallet",outerWallet);
         await sessionSet(__key_last_touch, Date.now());
 
         const obj = Object.fromEntries(outerWallet);
