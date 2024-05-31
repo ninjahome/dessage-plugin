@@ -5,7 +5,8 @@
         version: '1.0.0',
         connect: function () {
             console.log('Connecting to Dessage...');
-            window.postMessage({ source: "dessage", action: "someAction", data: "some data" }, "*");
+            window.postMessage({ source: "dessage", action: "someAction", data: "some data" },
+                "*");
             window.addEventListener("message", (event) => {
                 if (event.source !== window || !event.data || event.data.source !== "dessage-response") {
                     return;
@@ -14,10 +15,5 @@
             });
         },
     };
-
     console.log('Dessage injected');
-    // 示例：在网页加载完成后自动连接
-    window.addEventListener('load', function() {
-        window.dessage.connect();
-    });
 })();
