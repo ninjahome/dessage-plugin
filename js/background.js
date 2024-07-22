@@ -9,7 +9,8 @@ importScripts('bech32.bundle.js');
 importScripts('ethereumjs-util.bundle.js');
 importScripts('wallet.js');
 
-const __timeOut = 6 * 60 * 60 * 1000;
+const __timeOut = 20 * 1000;
+// const __timeOut = 6 * 60 * 60 * 1000;
 const INFURA_PROJECT_ID = 'eced40c03c2a447887b73369aee4fbbe';
 const __key_wallet_status = '__key_wallet_status';
 const __key_wallet_map = '__key_wallet_map';
@@ -52,8 +53,9 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('Service Worker activating...');
     event.waitUntil(clients.claim());
+    initDatabase();
+    console.log('Service Worker activating and init database...');
 });
 
 async function createAlarm() {
@@ -78,7 +80,6 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onStartup.addListener(() => {
     console.log('Service Worker onStartup...');
-    initDatabase();
 });
 chrome.runtime.onSuspend.addListener(() => {
     console.log('Browser is shutting down, closing IndexedDB...');
@@ -115,12 +116,16 @@ async function timerTaskWork(alarm) {
 
     if (alarm.name === __alarm_name__) {
         console.log("Alarm Triggered!");
-        if (walletStatus === WalletStatus.Unlocked) {
-            queryBalance();
+
+        console.log("time out:", keyLastTouch, __timeOut, "now:",Date.now())
+        if (keyLastTouch + __timeOut < Date.now()) {
+            console.log('time out to close wallet...');
+            await closeWallet();
+            return;
         }
 
-        if (keyLastTouch + __timeOut < Date.now()) {
-            await closeWallet();
+        if (walletStatus === WalletStatus.Unlocked) {
+            queryBalance();
         }
     }
 }

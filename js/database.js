@@ -1,10 +1,11 @@
 let __databaseObj;
 const __currentDatabaseVersion = 2;
 const __tableNameWallet = '__table_wallet__';
+const __databaseName = 'dessage-database';
 
 function initDatabase() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('dessage-database', __currentDatabaseVersion);
+        const request = indexedDB.open(__databaseName, __currentDatabaseVersion);
 
         request.onerror = function (event) {
             console.error("Database open failed:", event.target.error);
@@ -33,6 +34,7 @@ function closeDatabase() {
     if (__databaseObj) {
         __databaseObj.close();
         console.log("Database connection closed.");
+        __databaseObj = null;
     }
 }
 

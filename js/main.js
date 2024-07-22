@@ -104,7 +104,7 @@ function openAllWallets() {
 
 function router(path) {
     if (path === '#onboarding/dashboard') {
-        fillWalletList();
+        populateDashboard();
     }
     if (path === '#onboarding/confirm-recovery') {
     }
@@ -123,6 +123,11 @@ async function testRemoveAllWallet() {
     })
 }
 
+function populateDashboard() {
+    fillWalletList();
+    showMultiAddr();
+}
+
 function fillWalletList() {
     const selectElement = document.getElementById("wallet-dropdown");
     selectElement.innerHTML = '';
@@ -139,4 +144,8 @@ function fillWalletList() {
 function fillWalletContent(addr) {
     const wallet = __walletMap.get(addr);
     console.log("wallet data:=>", wallet.toString());
+}
+
+function showMultiAddr() {
+
 }
