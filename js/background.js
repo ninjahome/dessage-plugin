@@ -78,8 +78,12 @@ chrome.runtime.onInstalled.addListener((details) => {
 
 chrome.runtime.onStartup.addListener(() => {
     console.log('Service Worker onStartup...');
+    initDatabase();
 });
-
+chrome.runtime.onSuspend.addListener(() => {
+    console.log('Browser is shutting down, closing IndexedDB...');
+    closeDatabase();
+});
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("action :=>", request.action);
     switch (request.action) {
@@ -115,8 +119,8 @@ async function timerTaskWork(alarm) {
             queryBalance();
         }
 
-        if (keyLastTouch + __timeOut < Date.now()){
-           await closeWallet();
+        if (keyLastTouch + __timeOut < Date.now()) {
+            await closeWallet();
         }
     }
 }
@@ -171,7 +175,7 @@ async function pluginClicked(sendResponse) {
         if (walletStatus === WalletStatus.Unlocked) {
             const sObj = await sessionGet(__key_wallet_map);
             const outerWallet = new Map(sObj);
-            console.log("outerWallet",outerWallet);
+            console.log("outerWallet", outerWallet);
             const obj = Object.fromEntries(outerWallet);
             msg = JSON.stringify(obj);
         }
@@ -205,7 +209,7 @@ async function openWallet(pwd, sendResponse) {
 
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
         await sessionSet(__key_wallet_map, Array.from(outerWallet.entries()));
-        console.log("outerWallet",outerWallet);
+        console.log("outerWallet", outerWallet);
         await sessionSet(__key_last_touch, Date.now());
 
         const obj = Object.fromEntries(outerWallet);
@@ -223,5 +227,4 @@ async function openWallet(pwd, sendResponse) {
 async function closeWallet(sendResponse) {
     await sessionRemove(__key_wallet_map);
     await sessionSet(__key_wallet_status, WalletStatus.Locked);
-    sendResponse({status: true, message: 'success'});
 }
