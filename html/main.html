@@ -35,7 +35,13 @@
         </select>
     </div>
     <div id="wallet-content-area" class="wallet-content-area">
-
+        <li id="address-item-template" style="display: none">
+            <div class="address-item">
+                <span class="address-label">Eth Address:</span><br><span class="address-val"></span>
+            </div>
+        </li>
+        <ul class="address-list" id="address-list-id">
+        </ul>
     </div>
 </div>
 
@@ -48,10 +54,10 @@
 <script src="/js/ethereumjs-tx-bundle.js"></script>
 <script src="/js/bech32.bundle.js"></script>
 
-
 <script src="/js/util.js"></script>
 <script src="/js/database.js"></script>
 <script src="/js/wallet.js"></script>
+<script src="/js/setting.js"></script>
 <script src="/js/main.js"></script>
 </body>
 </html>

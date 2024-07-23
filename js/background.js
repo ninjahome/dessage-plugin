@@ -7,10 +7,10 @@ importScripts('elliptic.bundle.js');
 importScripts('bip39.browser.js');
 importScripts('bech32.bundle.js');
 importScripts('ethereumjs-util.bundle.js');
+importScripts('setting.js');
 importScripts('wallet.js');
 
-const __timeOut = 20 * 1000;
-// const __timeOut = 6 * 60 * 60 * 1000;
+const __timeOut = 6 * 60 * 60 * 1000;
 const INFURA_PROJECT_ID = 'eced40c03c2a447887b73369aee4fbbe';
 const __key_wallet_status = '__key_wallet_status';
 const __key_wallet_map = '__key_wallet_map';
@@ -54,7 +54,6 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
     event.waitUntil(clients.claim());
-    initDatabase();
     console.log('Service Worker activating and init database...');
 });
 
@@ -85,6 +84,7 @@ chrome.runtime.onSuspend.addListener(() => {
     console.log('Browser is shutting down, closing IndexedDB...');
     closeDatabase();
 });
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("action :=>", request.action);
     switch (request.action) {
@@ -108,6 +108,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({status: 'unknown action'});
             return false;
     }
+
 });
 
 async function timerTaskWork(alarm) {
@@ -117,7 +118,7 @@ async function timerTaskWork(alarm) {
     if (alarm.name === __alarm_name__) {
         console.log("Alarm Triggered!");
 
-        console.log("time out:", keyLastTouch, __timeOut, "now:",Date.now())
+        console.log("time out:", keyLastTouch, __timeOut, "now:", Date.now())
         if (keyLastTouch + __timeOut < Date.now()) {
             console.log('time out to close wallet...');
             await closeWallet();
@@ -164,10 +165,10 @@ function queryBalance() {
 
 async function pluginClicked(sendResponse) {
     try {
+        await checkAndInitDatabase();
         let msg = '';
         let walletStatus = await sessionGet(__key_wallet_status) || WalletStatus.Init;
         if (walletStatus === WalletStatus.Init) {
-            await initDatabase();
             const wallets = await loadLocalWallet();
             // console.log("wallet length=>", wallets.length);
             if (!wallets || wallets.length === 0) {
@@ -201,6 +202,7 @@ async function createWallet(sendResponse) {
 
 async function openWallet(pwd, sendResponse) {
     try {
+        await checkAndInitDatabase();
         const outerWallet = new Map();
 
         const wallets = await loadLocalWallet();

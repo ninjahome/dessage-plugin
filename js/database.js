@@ -1,7 +1,8 @@
 let __databaseObj;
-const __currentDatabaseVersion = 2;
-const __tableNameWallet = '__table_wallet__';
 const __databaseName = 'dessage-database';
+const __currentDatabaseVersion = 7;
+const __tableNameWallet = '__table_wallet__';
+const __tableSystemSetting = '__table_system_setting__';
 
 function initDatabase() {
     return new Promise((resolve, reject) => {
@@ -24,7 +25,12 @@ function initDatabase() {
                 const objectStore = db.createObjectStore(__tableNameWallet, {keyPath: 'address'});
                 objectStore.createIndex('addressIdx', 'address', {unique: true});
                 objectStore.createIndex('uuidIdx', 'uuid', {unique: true});
-                console.log("Created cached item table successfully.");
+                console.log("Created wallet table successfully.");
+            }
+
+            if (!db.objectStoreNames.contains(__tableSystemSetting)) {
+                const objectStore = db.createObjectStore(__tableSystemSetting, {keyPath: 'id'});
+                console.log("Created wallet setting table successfully.");
             }
         };
     });
@@ -266,4 +272,30 @@ function databaseDeleteTable(tableName) {
         __databaseObj.deleteObjectStore(tableName);
         console.log("Object store " + tableName + " deleted");
     }
+}
+
+async function checkAndInitDatabase() {
+    if (!__databaseObj) {
+        await initDatabase();
+    }
+}
+
+function getMaxIdRecord(storeName) {
+    return new Promise((resolve, reject) => {
+        const transaction = __databaseObj.transaction([storeName], 'readonly');
+        const objectStore = transaction.objectStore(storeName);
+        const cursorRequest = objectStore.openCursor(null, 'prev');
+        cursorRequest.onsuccess = function (event) {
+            const cursor = event.target.result;
+            if (cursor) {
+                resolve(cursor.value);
+            } else {
+                resolve(null);
+            }
+        };
+
+        cursorRequest.onerror = function (event) {
+            reject('Error opening cursor:', event.target.error);
+        };
+    });
 }

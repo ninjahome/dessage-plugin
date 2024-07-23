@@ -1,9 +1,11 @@
-let __currentWallet = null;
 let __walletMap = new Map();
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
 async function initDessagePlugin() {
+
+    await initDatabase();
+    await loadLastSystemSetting();
     initLoginDiv();
     initDashBoard();
     // await testRemoveAllWallet();
@@ -49,7 +51,7 @@ function pluginClicked() {
             console.error('Error: Response is undefined or null.');
             return;
         }
-        console.log("response=>", JSON.stringify(response));
+        console.log("------>>>response=>", JSON.stringify(response));
 
         switch (response.status) {
             case WalletStatus.NoWallet:
@@ -82,7 +84,7 @@ function initDashBoard() {
     const selectElement = document.getElementById("wallet-dropdown");
     selectElement.addEventListener('change', function (event) {
         const selectedValue = event.target.value;
-        console.log('Selected value:', selectedValue);
+        console.log('------>>>selected value:', selectedValue);
         fillWalletContent(selectedValue);
     });
 }
@@ -125,13 +127,13 @@ async function testRemoveAllWallet() {
 
 function populateDashboard() {
     fillWalletList();
-    showMultiAddr();
 }
 
 function fillWalletList() {
     const selectElement = document.getElementById("wallet-dropdown");
     selectElement.innerHTML = '';
     const option = document.getElementById("wallet-option-item");
+
     __walletMap.forEach((wallet, addr) => {
         const optionDiv = option.cloneNode(true);
         optionDiv.style.display = 'block';
@@ -139,13 +141,52 @@ function fillWalletList() {
         optionDiv.textContent = wallet.address;
         selectElement.appendChild(optionDiv);
     });
+
+    let selAddr = __systemSetting.address;
+    if (selAddr) {
+        selectElement.value = selAddr;
+    } else {
+        selectElement.selectedIndex = 0;
+        __systemSetting.address = selectElement.value;
+        __systemSetting.syncToDB().then(r => {
+        })
+        selAddr = selectElement.value;
+    }
+    fillWalletContent(selAddr);
 }
 
 function fillWalletContent(addr) {
     const wallet = __walletMap.get(addr);
-    console.log("wallet data:=>", wallet.toString());
-}
+    console.log("------>>>wallet data:=>", wallet.toString());
 
-function showMultiAddr() {
+    const addrList = document.getElementById("address-list-id");
+    addrList.innerHTML = '';
+    const addrItemTmp = document.getElementById("address-item-template");
+    let addrItem = addrItemTmp.cloneNode(true);
+    addrItem.id = '';
+    addrItem.style.display = 'block';
+    addrItem.querySelector('.address-label').textContent = "ETH Address:"
+    addrItem.querySelector('.address-val').textContent = wallet.ethAddr;
+    addrList.appendChild(addrItem);
 
+    addrItem = addrItemTmp.cloneNode(true);
+    addrItem.id = '';
+    addrItem.style.display = 'block';
+    addrItem.querySelector('.address-label').textContent = "BTC Address:"
+    addrItem.querySelector('.address-val').textContent = wallet.btcAddr;
+    addrList.appendChild(addrItem);
+
+    addrItem = addrItemTmp.cloneNode(true);
+    addrItem.id = '';
+    addrItem.style.display = 'block';
+    addrItem.querySelector('.address-label').textContent = "BTC Test Address:"
+    addrItem.querySelector('.address-val').textContent = wallet.testBtcAddr;
+    addrList.appendChild(addrItem);
+
+    addrItem = addrItemTmp.cloneNode(true);
+    addrItem.id = '';
+    addrItem.style.display = 'block';
+    addrItem.querySelector('.address-label').textContent = "Nostr Address:"
+    addrItem.querySelector('.address-val').textContent = wallet.nostrAddr;
+    addrList.appendChild(addrItem);
 }
