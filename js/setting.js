@@ -9,6 +9,11 @@ class SysSetting {
     async  syncToDB(){
         await databaseUpdate(__tableSystemSetting,this.id, this);
     }
+
+    async changeAddr(addr){
+        this.address = addr;
+        await databaseUpdate(__tableSystemSetting,this.id, this);
+    }
 }
 
 let __systemSetting = null;
