@@ -16,6 +16,7 @@ const __key_wallet_status = '__key_wallet_status';
 const __key_wallet_map = '__key_wallet_map';
 const __key_last_touch = '__key_last_touch';
 const __alarm_name__ = '__alarm_name__timer__';
+let __curActiveWallet = null;
 
 async function sessionSet(key, value) {
     try {
@@ -104,6 +105,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             createWallet(sendResponse).then(r => {
             });
             return true;
+        case MsgType.SetActiveWallet:
+            setActiveWallet(request.address, sendResponse).then(r => {
+            });
+            return true;
         default:
             sendResponse({status: 'unknown action'});
             return false;
@@ -131,10 +136,13 @@ async function timerTaskWork(alarm) {
     }
 }
 
-const ETH_ADDRESS = '0x2ba4E30628742E55e98E4a5253B510f5f2c60219';
-
 function queryBalance() {
-    console.log('start to query eth balance');
+    if (!__curActiveWallet || !__curActiveWallet.ethAddr) {
+        console.log("no active wallet right now");
+        return;
+    }
+    const ethAddr= __curActiveWallet.ethAddr;
+    console.log(`start to query eth[${ethAddr}] balance for:`);
     // fetch(`https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`, {
     fetch(`https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`, {
         method: 'POST',
@@ -144,7 +152,7 @@ function queryBalance() {
         body: JSON.stringify({
             jsonrpc: '2.0',
             method: 'eth_getBalance',
-            params: [ETH_ADDRESS, 'latest'],
+            params: [ethAddr, 'latest'],
             id: 1
         })
     }).then(response => response.json())
@@ -154,8 +162,7 @@ function queryBalance() {
             } else {
                 const balanceInWei = result.result;
                 const balanceInEth = parseInt(balanceInWei, 16) / (10 ** 18);
-                console.log(`Address: ${ETH_ADDRESS}`);
-                console.log(`Balance: ${balanceInEth} ETH`);
+                console.log(`Address: ${ethAddr}`,`Balance: ${balanceInEth} ETH`);
             }
         })
         .catch(error => {
@@ -180,10 +187,7 @@ async function pluginClicked(sendResponse) {
 
         if (walletStatus === WalletStatus.Unlocked) {
             const sObj = await sessionGet(__key_wallet_map);
-            const outerWallet = new Map(sObj);
-            console.log("outerWallet", outerWallet);
-            const obj = Object.fromEntries(outerWallet);
-            msg = JSON.stringify(obj);
+            msg = JSON.stringify(sObj);
         }
 
         sendResponse({status: walletStatus, message: msg});
@@ -213,13 +217,12 @@ async function openWallet(pwd, sendResponse) {
                 key.EthAddr, key.NostrAddr, key.BtcTestAddr);
             outerWallet.set(wallet.address, w);
         })
-
+        const obj = Object.fromEntries(outerWallet);
         await sessionSet(__key_wallet_status, WalletStatus.Unlocked);
-        await sessionSet(__key_wallet_map, Array.from(outerWallet.entries()));
+        await sessionSet(__key_wallet_map, obj);
         console.log("outerWallet", outerWallet);
         await sessionSet(__key_last_touch, Date.now());
 
-        const obj = Object.fromEntries(outerWallet);
         sendResponse({status: true, message: JSON.stringify(obj)});
     } catch (error) {
         console.error('Error in open wallet:', error);
@@ -234,4 +237,18 @@ async function openWallet(pwd, sendResponse) {
 async function closeWallet(sendResponse) {
     await sessionRemove(__key_wallet_map);
     await sessionSet(__key_wallet_status, WalletStatus.Locked);
+}
+
+async function setActiveWallet(address, sendResponse) {
+    const sObj = await sessionGet(__key_wallet_map);
+    const obj = new Map(Object.entries(sObj));
+
+    const outerWallet =  obj.get(address);
+    console.log("obj is:",obj, " have a try:", outerWallet,"for:",address);
+    if (!outerWallet){
+        sendResponse({status: false, message:'no such outer wallet'});
+        return;
+    }
+    __curActiveWallet = outerWallet
+    sendResponse({status:false, message: 'success'});
 }

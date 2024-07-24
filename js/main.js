@@ -157,7 +157,10 @@ function fillWalletList() {
 
 function fillWalletContent(addr) {
     const wallet = __walletMap.get(addr);
-    console.log("------>>>wallet data:=>", wallet.toString());
+
+    setActiveWallet(addr);
+
+    console.log("------>>>wallet data:=>", JSON.stringify(wallet));
 
     const addrList = document.getElementById("address-list-id");
     addrList.innerHTML = '';
@@ -189,4 +192,17 @@ function fillWalletContent(addr) {
     addrItem.querySelector('.address-label').textContent = "Nostr Address:"
     addrItem.querySelector('.address-val').textContent = wallet.nostrAddr;
     addrList.appendChild(addrItem);
+
+}
+
+function setActiveWallet(address){
+    chrome.runtime.sendMessage({action: MsgType.SetActiveWallet, address: address}, response => {
+        if (response.status) {
+            console.log("set active wallet success");
+            return;
+        }
+        //TODO::show errors to user
+        const errTips = document.querySelector(".login-container .login-error");
+        errTips.innerText = response.message;
+    });
 }

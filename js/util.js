@@ -24,4 +24,5 @@ const MsgType = Object.freeze({
     WalletOpen: 'WalletOpen',
     WalletClose: 'WalletClose',
     WalletCreated:'WalletCreated',
+    SetActiveWallet:'SetActiveWallet',
 });
