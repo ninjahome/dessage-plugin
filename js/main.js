@@ -1,9 +1,10 @@
+
+
 let __walletMap = new Map();
 
 document.addEventListener("DOMContentLoaded", initDessagePlugin);
 
 async function initDessagePlugin() {
-
     await initDatabase();
     await loadLastSystemSetting();
 
@@ -17,7 +18,8 @@ async function initDessagePlugin() {
 
 function checkBackgroundStatus() {
     const request = {action: MsgType.PluginClicked};
-    chrome.runtime.sendMessage(request, response => {
+
+    browser.runtime.sendMessage(request).then(response => {
         console.log("request=>", JSON.stringify(request));
         if (!response) {
             console.error('Error: Response is undefined or null.');
@@ -27,8 +29,8 @@ function checkBackgroundStatus() {
 
         switch (response.status) {
             case WalletStatus.NoWallet:
-                chrome.tabs.create({
-                    url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
+                tabs.create({
+                    url: browser.runtime.getURL("html/home.html#onboarding/welcome")
                 });
                 return;
             case WalletStatus.Locked:
@@ -45,6 +47,8 @@ function checkBackgroundStatus() {
                 alert("error:" + response.message);
                 return;
         }
+    }).catch(error => {
+        console.error('Error sending message:', error);
     });
 }
 
@@ -60,7 +64,6 @@ function router(path) {
     }
 }
 
-
 /***********************************
  *
  *            test area
@@ -72,8 +75,7 @@ async function testRemoveAllWallet() {
     await databaseDeleteByFilter(__tableNameWallet, (val) => {
         console.log("delete all");
         return true;
-
-    })
+    });
 }
 
 const {Buffer, Transaction} = EthereumTx;
@@ -86,7 +88,7 @@ function testKey() {
     console.log(priArray, 'Private Key(ethereum or btc):',
         privateKeyHex, "btc address:", key.BtcAddr, "eth address", key.EthAddr);
 
-    const privateArr = hexStringToByteArray(privateKeyHex)
+    const privateArr = hexStringToByteArray(privateKeyHex);
     const publicKey = key.ECKey.getPublic();
     const publicKeyBytes = publicKey.encode('array', false);
     console.log("privateArr=>", privateArr, "\npublicKeyBytes", publicKeyBytes);

@@ -114,8 +114,13 @@ async function createWallet() {
 
     const wallet = NewWallet(mnemonic, password1);
     await wallet.syncToDb();
-    chrome.runtime.sendMessage({action: MsgType.WalletCreated}, response => {
-    });
+    browser.runtime.sendMessage({ action: MsgType.WalletCreated })
+        .then(response => {
+            console.log("Message sent successfully", response);
+        })
+        .catch(error => {
+            console.error("Error sending message:", error);
+        });
 }
 
 function importWallet() {
@@ -366,7 +371,7 @@ async function actionOfWalletImport() {
     const password = document.getElementById("imported-new-password").value;
     const wallet = NewWallet(___mnemonic_in_mem, password);
     await wallet.syncToDb();
-    chrome.runtime.sendMessage({action: MsgType.WalletCreated}, response => {
+    browser.runtime.sendMessage({action: MsgType.WalletCreated}, response => {
     });
     ___mnemonic_in_mem = null;
     sessionStorage.removeItem(__key_for_mnemonic_temp);

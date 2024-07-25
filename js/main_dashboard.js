@@ -1,3 +1,4 @@
+
 function initDashBoard() {
     const selectElement = document.getElementById("wallet-dropdown");
     selectElement.addEventListener('change', function (event) {
@@ -46,20 +47,22 @@ function setAccountSwitchArea() {
     }
 }
 
-
 function notifyBackgroundActiveWallet(address) {
-    chrome.runtime.sendMessage({action: MsgType.SetActiveWallet, address: address}, response => {
+    browser.runtime.sendMessage({action: MsgType.SetActiveWallet, address: address}).then(response => {
         if (response.status) {
             console.log("set active wallet success");
             return;
         }
-        //TODO::show errors to user
+        // TODO::show errors to user
         const errTips = document.querySelector(".login-container .login-error");
         errTips.innerText = response.message;
+    }).catch(error => {
+        console.error('Error sending message:', error);
     });
 }
 
 function setupNinjaDetail(wallet) {
+    // 实现细节
 }
 
 function setupEtherArea(wallet) {

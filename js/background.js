@@ -1,3 +1,4 @@
+importScripts('browser-polyfill.min.js');
 importScripts('database.js');
 importScripts('util.js');
 importScripts('crypto.bundle.js');
@@ -18,9 +19,14 @@ const __key_last_touch = '__key_last_touch';
 const __alarm_name__ = '__alarm_name__timer__';
 let __curActiveWallet = null;
 
+const runtime = browser.runtime;
+const storage = browser.storage;
+const alarms = browser.alarms;
+const tabs = browser.tabs;
+
 async function sessionSet(key, value) {
     try {
-        await chrome.storage.session.set({[key]: value});
+        await storage.session.set({[key]: value});
         console.log("Value was set successfully.", value);
     } catch (error) {
         console.error("Failed to set value:", error);
@@ -29,7 +35,7 @@ async function sessionSet(key, value) {
 
 async function sessionGet(key) {
     try {
-        const result = await chrome.storage.session.get([key]);
+        const result = await storage.session.get(key);
         console.log("Value is:", result[key]);
         return result[key];
     } catch (error) {
@@ -40,7 +46,7 @@ async function sessionGet(key) {
 
 async function sessionRemove(key) {
     try {
-        await chrome.storage.session.remove([key]);
+        await storage.session.remove(key);
         console.log("Value was removed successfully.");
     } catch (error) {
         console.error("Failed to remove value:", error);
@@ -59,34 +65,35 @@ self.addEventListener('activate', (event) => {
 });
 
 async function createAlarm() {
-    const alarm = await chrome.alarms.get(__alarm_name__);
-    if (typeof alarm === 'undefined') {
-        chrome.alarms.create(__alarm_name__, {
+    const alarm = await alarms.get(__alarm_name__);
+    if (!alarm) {
+        alarms.create(__alarm_name__, {
             periodInMinutes: 1
         });
     }
 }
 
-chrome.alarms.onAlarm.addListener(timerTaskWork);
+alarms.onAlarm.addListener(timerTaskWork);
 
-chrome.runtime.onInstalled.addListener((details) => {
+runtime.onInstalled.addListener((details) => {
     console.log("onInstalled event triggered");
-    if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
-        chrome.tabs.create({
-            url: chrome.runtime.getURL("html/home.html#onboarding/welcome")
+    if (details.reason === runtime.OnInstalledReason.INSTALL) {
+        tabs.create({
+            url: runtime.getURL("html/home.html#onboarding/welcome")
         });
     }
 });
 
-chrome.runtime.onStartup.addListener(() => {
+runtime.onStartup.addListener(() => {
     console.log('Service Worker onStartup...');
 });
-chrome.runtime.onSuspend.addListener(() => {
+
+runtime.onSuspend.addListener(() => {
     console.log('Browser is shutting down, closing IndexedDB...');
     closeDatabase();
 });
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log("action :=>", request.action);
     switch (request.action) {
         case MsgType.PluginClicked:
@@ -113,7 +120,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             sendResponse({status: 'unknown action'});
             return false;
     }
-
 });
 
 async function timerTaskWork(alarm) {
@@ -141,7 +147,7 @@ function queryBalance() {
         console.log("no active wallet right now");
         return;
     }
-    const ethAddr= __curActiveWallet.ethAddr;
+    const ethAddr = __curActiveWallet.ethAddr;
     console.log(`start to query eth[${ethAddr}] balance for:`);
     // fetch(`https://mainnet.infura.io/v3/${INFURA_PROJECT_ID}`, {
     fetch(`https://sepolia.infura.io/v3/${INFURA_PROJECT_ID}`, {
@@ -162,7 +168,7 @@ function queryBalance() {
             } else {
                 const balanceInWei = result.result;
                 const balanceInEth = parseInt(balanceInWei, 16) / (10 ** 18);
-                console.log(`Address: ${ethAddr}`,`Balance: ${balanceInEth} ETH`);
+                console.log(`Address: ${ethAddr}`, `Balance: ${balanceInEth} ETH`);
             }
         })
         .catch(error => {
@@ -243,12 +249,12 @@ async function setActiveWallet(address, sendResponse) {
     const sObj = await sessionGet(__key_wallet_map);
     const obj = new Map(Object.entries(sObj));
 
-    const outerWallet =  obj.get(address);
-    console.log("obj is:",obj, " have a try:", outerWallet,"for:",address);
-    if (!outerWallet){
-        sendResponse({status: false, message:'no such outer wallet'});
+    const outerWallet = obj.get(address);
+    console.log("obj is:", obj, " have a try:", outerWallet, "for:", address);
+    if (!outerWallet) {
+        sendResponse({status: false, message: 'no such outer wallet'});
         return;
     }
     __curActiveWallet = outerWallet
-    sendResponse({status:false, message: 'success'});
+    sendResponse({status: true, message: 'success'});
 }
